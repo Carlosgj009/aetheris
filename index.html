@@ -254,18 +254,14 @@
 
         /* MINIJUEGO */
         .game-box { background: var(--card-inner); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; text-align: center; position: relative; height: 300px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
-        .game-stats { display: flex; justifyContent: space-around; font-size: 1.1rem; font-weight: 700; color: var(--cursor-color); z-index: 2; }
+        .game-stats { display: flex; justify-content: space-around; font-size: 1.1rem; font-weight: 700; color: var(--cursor-color); z-index: 2; }
         .game-area { position: relative; flex-grow: 1; margin-top: 10px; border-radius: 12px; background: rgba(0, 0, 0, 0.15); }
-        #target-orb { position: absolute; width: 45px; height: 45px; background: var(--accent-gradient); border-radius: 50%; cursor: pointer; display: none; box-shadow: 0 0 20px var(--cursor-color); transition: transform 0.1s; }
+        #target-orb { position: absolute; width: 45px; height: 45px; background: var(--accent-gradient); border-radius: 50%; cursor: pointer; display: none; box-shadow: 0 0 20px var(--cursor-color); transition: transform 0.1s; z-index: 5; }
         #target-orb:active { transform: scale(0.85); }
         .game-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-main); font-size: 1rem; z-index: 3; text-align: center; width: 100%; }
 
         /* PROYECTOS */
         .section-title { font-size: 1.8rem; margin-bottom: 20px; letter-spacing: 1px; text-align: center; }
-        .filter-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-        .filter-btn { background: var(--card-inner); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 8px 18px; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-size: 0.85rem; }
-        .filter-btn.active, .filter-btn:hover { background: var(--glass-border); color: var(--cursor-color); border-color: var(--cursor-color); }
-
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .art-item { background: var(--card-inner); border: 1px solid var(--glass-border); border-radius: 14px; padding: 20px; transition: transform 0.1s ease, border-color 0.3s ease; position: relative; }
         .art-tag { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; background: var(--glass-border); color: var(--cursor-color); border-radius: 20px; margin-bottom: 12px; text-transform: uppercase; }
@@ -439,36 +435,73 @@
         const savedTheme = localStorage.getItem('aetheris-theme');
         if (savedTheme) setTheme(savedTheme);
 
-        /* AUDIO AMBIENTAL PROCEDURAL (Web Audio API) */
+        /* AUDIO AMBIENTAL PROCEDURAL MEJORADO (Sin estática, con sintetizador suave) */
         let audioCtx = null;
         let isAudioPlaying = false;
-        let oscillator = null;
+        let osc1 = null, osc2 = null;
         let gainNode = null;
+        let filterNode = null;
 
         function toggleAmbientAudio() {
             const btn = document.getElementById('audio-toggle');
             if (!isAudioPlaying) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                oscillator = audioCtx.createOscillator();
-                gainNode = audioCtx.createGain();
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtx.state === 'suspended') {
+                        audioCtx.resume();
+                    }
 
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                oscillator.type = currentTheme === 'cyberpunk' ? 'sawtooth' : 'sine';
-                oscillator.frequency.setValueAtTime(getThemeFreq(currentTheme), audioCtx.currentTime);
+                    // Creamos dos osciladores para un acorde armónico suave (onda sine y triangle)
+                    osc1 = audioCtx.createOscillator();
+                    osc2 = audioCtx.createOscillator();
+                    gainNode = audioCtx.createGain();
+                    filterNode = audioCtx.createBiquadFilter();
 
-                gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); // Volumen suave
+                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    const baseFreq = getThemeFreq(currentTheme);
 
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                oscillator.start();
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
 
-                isAudioPlaying = true;
-                btn.innerHTML = "🔊 <span>Audio Activo</span>";
-                btn.style.borderColor = "var(--cursor-color)";
+                    osc2.type = 'triangle';
+                    osc2.frequency.setValueAtTime(baseFreq * 1.5, audioCtx.currentTime); // Quinta justa para un sonido armónico relajante
+
+                    // Filtro de paso bajo para eliminar cualquier frecuencia metálica o estática
+                    filterNode.type = 'lowpass';
+                    filterNode.frequency.setValueAtTime(450, audioCtx.currentTime);
+
+                    // Envolvente de volumen con inicio gradual (fade-in) para evitar chasquidos
+                    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 1.5);
+
+                    // Conexiones: Osciladores -> Filtro -> Ganancia -> Salida
+                    osc1.connect(filterNode);
+                    osc2.connect(filterNode);
+                    filterNode.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+
+                    osc1.start();
+                    osc2.start();
+
+                    isAudioPlaying = true;
+                    btn.innerHTML = "🔊 <span>Audio Activo</span>";
+                    btn.style.borderColor = "var(--cursor-color)";
+                } catch (e) {
+                    console.error("Error al iniciar audio:", e);
+                }
             } else {
-                if (oscillator) oscillator.stop();
-                if (audioCtx) audioCtx.close();
-                isAudioPlaying = false;
+                if (gainNode && audioCtx) {
+                    // Fade-out suave al apagar
+                    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+                    setTimeout(() => {
+                        if (osc1) osc1.stop();
+                        if (osc2) osc2.stop();
+                        if (audioCtx) audioCtx.close();
+                        isAudioPlaying = false;
+                    }, 500);
+                } else {
+                    isAudioPlaying = false;
+                }
                 btn.innerHTML = "🔇 <span>Audio Amb.</span>";
                 btn.style.borderColor = "var(--glass-border)";
             }
@@ -476,17 +509,18 @@
 
         function getThemeFreq(theme) {
             switch(theme) {
-                case 'cyberpunk': return 150;
-                case 'solar': return 260;
-                case 'emerald': return 220;
-                default: return 196; // aurora
+                case 'cyberpunk': return 110; // La2
+                case 'solar': return 146.83;  // Re3
+                case 'emerald': return 130.81; // Do3
+                default: return 98.00;        // Sol2 (Aurora, muy profundo y ambiental)
             }
         }
 
         function updateAudioThemeFreq(theme) {
-            if (isAudioPlaying && oscillator && audioCtx) {
-                oscillator.frequency.setValueAtTime(getThemeFreq(theme), audioCtx.currentTime);
-                oscillator.type = theme === 'cyberpunk' ? 'sawtooth' : 'sine';
+            if (isAudioPlaying && osc1 && osc2 && audioCtx) {
+                const baseFreq = getThemeFreq(theme);
+                osc1.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+                osc2.frequency.setValueAtTime(baseFreq * 1.5, audioCtx.currentTime);
             }
         }
 
@@ -503,7 +537,6 @@
             localStorage.setItem('aetheris-favs', JSON.stringify(favs));
         }
 
-        // Cargar estado de favoritos al iniciar
         window.addEventListener('DOMContentLoaded', () => {
             const favs = JSON.parse(localStorage.getItem('aetheris-favs')) || [];
             document.querySelectorAll('.art-item').forEach((item, idx) => {
