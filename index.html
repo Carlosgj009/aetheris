@@ -226,7 +226,7 @@
             border-color: #c084fc;
         }
 
-        /* PORTFOLIO GRID */
+        /* PORTFOLIO GRID & ROLL 3D EFFECT */
         .section-title {
             font-size: 1.8rem;
             margin-bottom: 25px;
@@ -239,6 +239,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
+            perspective: 1000px; /* Necesario para el efecto 3D */
         }
 
         .art-item {
@@ -246,18 +247,13 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 14px;
             padding: 20px;
-            transition: all 0.4s ease;
+            transition: transform 0.1s ease, border-color 0.3s ease, box-shadow 0.3s ease;
             transform-style: preserve-3d;
+            will-change: transform;
         }
 
         .art-item.hide {
             display: none;
-        }
-
-        .art-item:hover {
-            transform: translateY(-5px) rotateX(2deg) rotateY(-2deg);
-            border-color: rgba(192, 132, 252, 0.4);
-            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.15);
         }
 
         .art-tag {
@@ -280,6 +276,23 @@
         .art-item p {
             font-size: 0.9rem;
             color: #94a3b8;
+        }
+
+        /* MINIJUEGO INTERACTIVO */
+        .game-container {
+            text-align: center;
+            background: rgba(10, 13, 24, 0.6);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .game-score {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 15px;
         }
 
         /* TESTIMONIALS */
@@ -369,6 +382,7 @@
             <a href="#" class="logo">AETHERIS</a>
             <div class="nav-links">
                 <a href="galeria.html">Galería</a>
+                <a href="#juego">Minijuego</a>
                 <a href="#obras">Proyectos</a>
                 <a href="#testimonios">Opiniones</a>
                 <a href="#contacto">Contacto</a>
@@ -399,7 +413,17 @@
             </div>
         </div>
 
-        <!-- PORTFOLIO WITH INTERACTIVE FILTERS -->
+        <!-- MINIJUEGO INTERACTIVO -->
+        <section id="juego" class="glass-card">
+            <h2 class="section-title">Minijuego de Precisión Neón</h2>
+            <div class="game-container">
+                <div class="game-score">Puntuación: <span id="score">0</span></div>
+                <p style="color: #94a3b8; margin-bottom: 15px;">Haz clic en el botón tantas veces como puedas para acumular energía cinética.</p>
+                <button id="game-btn" class="cta-btn">¡Cargar Energía!</button>
+            </div>
+        </section>
+
+        <!-- PORTFOLIO WITH INTERACTIVE FILTERS & 3D ROLL -->
         <section id="obras" class="glass-card">
             <h2 class="section-title">Colecciones Seleccionadas</h2>
             
@@ -411,24 +435,24 @@
                 <button class="filter-btn" onclick="filterSelection('vr')">Realidad Virtual</button>
             </div>
 
-            <!-- Grid Items -->
+            <!-- Grid Items with 3D Tilt Effect applied via JS -->
             <div class="grid">
-                <div class="art-item 3d">
+                <div class="art-item 3d card-3d">
                     <span class="art-tag">Simulación 3D</span>
                     <h3>01. Neon Entropy</h3>
                     <p>Simulación de fluidos luminosos y comportamiento de partículas en espacios virtuales.</p>
                 </div>
-                <div class="art-item algo">
+                <div class="art-item algo card-3d">
                     <span class="art-tag">Biología Sintética</span>
                     <h3>02. Cybernetic Flora</h3>
                     <p>Estudio conceptual de botánica futurista generada mediante algoritmos.</p>
                 </div>
-                <div class="art-item 3d">
+                <div class="art-item 3d card-3d">
                     <span class="art-tag">Escultura Digital</span>
                     <h3>03. Aura Spectra</h3>
                     <p>Estructuras geométricas traslúcidas con iluminación estilo Aurora UI.</p>
                 </div>
-                <div class="art-item vr">
+                <div class="art-item vr card-3d">
                     <span class="art-tag">Realidad Virtual</span>
                     <h3>04. Voxel Dreams</h3>
                     <p>Entornos inmersivos diseñados para exposiciones en galerías del metaverso.</p>
@@ -481,8 +505,9 @@
         </footer>
     </div>
 
-    <!-- JAVASCRIPT FOR INTERACTIVE FILTERS -->
+    <!-- JAVASCRIPT: FILTERS, 3D ROLL EFFECT & MINIGAME -->
     <script>
+        /* 1. Filtros de Categorías */
         function filterSelection(category) {
             const items = document.querySelectorAll('.art-item');
             const buttons = document.querySelectorAll('.filter-btn');
@@ -498,6 +523,48 @@
                 }
             });
         }
+
+        /* 2. Minijuego de Puntuación */
+        let score = 0;
+        const gameBtn = document.getElementById('game-btn');
+        const scoreDisplay = document.getElementById('score');
+
+        gameBtn.addEventListener('click', () => {
+            score++;
+            scoreDisplay.textContent = score;
+            gameBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                gameBtn.style.transform = 'none';
+            }, 100);
+        });
+
+        /* 3. Efecto Roll / Tilt 3D en Tarjetas */
+        const cards3D = document.querySelectorAll('.card-3d');
+
+        cards3D.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left; // Posición X dentro de la tarjeta
+                const y = e.clientY - rect.top;  // Posición Y dentro de la tarjeta
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                // Calcular ángulo de rotación basado en el movimiento del cursor
+                const rotateX = -((y - centerY) / centerY) * 12; // Inclinación vertical
+                const rotateY = ((x - centerX) / centerX) * 12;   // Inclinación horizontal
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+                card.style.borderColor = 'rgba(192, 132, 252, 0.4)';
+                card.style.boxShadow = '0 15px 35px rgba(168, 85, 247, 0.2)';
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+                card.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                card.style.boxShadow = 'none';
+            });
+        });
     </script>
 </body>
 </html>
