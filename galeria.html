@@ -270,29 +270,36 @@
 
         .item-preview-box {
             width: 100%;
-            height: 200px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(0,0,0,0.2));
+            height: 220px;
+            background: #000;
+            position: relative;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
         }
 
-        /* Simulación visual de render en miniatura 3D interno */
-        .mock-3d-shape {
-            width: 80px;
-            height: 80px;
-            background: var(--accent-gradient);
-            border-radius: 12px;
-            transform: rotate(45deg);
-            box-shadow: 0 0 30px var(--cursor-color);
-            animation: pulse-shape 4s ease-in-out infinite alternate;
+        .preview-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s ease;
         }
 
-        @keyframes pulse-shape {
-            0% { transform: rotate(0deg) scale(0.9); border-radius: 30%; }
-            100% { transform: rotate(90deg) scale(1.1); border-radius: 50%; }
+        .gallery-item:hover .preview-canvas {
+            transform: scale(1.1);
+        }
+
+        .preview-overlay-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(5, 5, 10, 0.85));
+            pointer-events: none;
         }
 
         .item-content {
@@ -396,6 +403,24 @@
 
         .close-modal:hover { background: var(--cursor-color); color: #fff; }
 
+        .cta-btn {
+            display: inline-block;
+            padding: 12px 28px;
+            background: var(--accent-gradient);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 30px;
+            box-shadow: 0 0 20px var(--glow-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+        }
+
         footer {
             text-align: center;
             padding: 40px 0 20px 0;
@@ -448,7 +473,10 @@
         <div class="gallery-grid">
             <!-- Item 1 -->
             <div class="gallery-item 3d card-3d" onclick="openModal('Neon Entropy', 'Simulación avanzada de fluidos luminosos y comportamiento caótico de partículas en espacios virtuales de alta densidad.', 'Simulación 3D')">
-                <div class="item-preview-box"><div class="mock-3d-shape" style="background: linear-gradient(45deg, #38bdf8, #a855f7);"></div></div>
+                <div class="item-preview-box">
+                    <canvas class="preview-canvas" data-art="fluids"></canvas>
+                    <div class="preview-overlay-gradient"></div>
+                </div>
                 <div class="item-content">
                     <div>
                         <span class="item-tag">Simulación 3D</span>
@@ -461,7 +489,10 @@
 
             <!-- Item 2 -->
             <div class="gallery-item algo card-3d" onclick="openModal('Cybernetic Flora', 'Estudio conceptual de botánica futurista generada mediante sistemas de L-Systems y morfología algorítmica.', 'Biología Sintética')">
-                <div class="item-preview-box"><div class="mock-3d-shape" style="background: linear-gradient(45deg, #10b981, #38bdf8); border-radius: 50%;"></div></div>
+                <div class="item-preview-box">
+                    <canvas class="preview-canvas" data-art="flora"></canvas>
+                    <div class="preview-overlay-gradient"></div>
+                </div>
                 <div class="item-content">
                     <div>
                         <span class="item-tag">Biología Sintética</span>
@@ -474,7 +505,10 @@
 
             <!-- Item 3 -->
             <div class="gallery-item 3d card-3d" onclick="openModal('Aura Spectra', 'Estructuras geométricas traslúcidas con iluminación dinámica inspirada en los espectros de luz boreal.', 'Escultura Digital')">
-                <div class="item-preview-box"><div class="mock-3d-shape" style="background: linear-gradient(45deg, #f472b6, #c084fc); transform: rotate(15deg);"></div></div>
+                <div class="item-preview-box">
+                    <canvas class="preview-canvas" data-art="spectra"></canvas>
+                    <div class="preview-overlay-gradient"></div>
+                </div>
                 <div class="item-content">
                     <div>
                         <span class="item-tag">Escultura Digital</span>
@@ -487,7 +521,10 @@
 
             <!-- Item 4 -->
             <div class="gallery-item vr card-3d" onclick="openModal('Voxel Dreams', 'Entornos inmersivos diseñados específicamente para exposiciones virtuales dentro del metaverso abierto.', 'Realidad Virtual')">
-                <div class="item-preview-box"><div class="mock-3d-shape" style="background: linear-gradient(45deg, #fb923c, #f43f5e); border-radius: 10px;"></div></div>
+                <div class="item-preview-box">
+                    <canvas class="preview-canvas" data-art="voxels"></canvas>
+                    <div class="preview-overlay-gradient"></div>
+                </div>
                 <div class="item-content">
                     <div>
                         <span class="item-tag">Realidad Virtual</span>
@@ -500,7 +537,10 @@
 
             <!-- Item 5 -->
             <div class="gallery-item motion card-3d" onclick="openModal('Quantum Pulse', 'Pieza de arte generativo en bucle infinito que reacciona a frecuencias de sonido electrónico sintético.', 'Motion Graphics')">
-                <div class="item-preview-box"><div class="mock-3d-shape" style="background: linear-gradient(45deg, #34d399, #0284c7); border-radius: 50%;"></div></div>
+                <div class="item-preview-box">
+                    <canvas class="preview-canvas" data-art="quantum"></canvas>
+                    <div class="preview-overlay-gradient"></div>
+                </div>
                 <div class="item-content">
                     <div>
                         <span class="item-tag">Motion Graphics</span>
@@ -513,7 +553,10 @@
 
             <!-- Item 6 -->
             <div class="gallery-item algo card-3d" onclick="openModal('Fractal Monoliths', 'Estructuras monolíticas basadas en matemáticas fractales complejas y renderizado procedural en tiempo real.', 'Algoritmos')">
-                <div class="item-preview-box"><div class="mock-3d-shape" style="background: linear-gradient(45deg, #a855f7, #6366f1); transform: rotate(60deg);"></div></div>
+                <div class="item-preview-box">
+                    <canvas class="preview-canvas" data-art="fractal"></canvas>
+                    <div class="preview-overlay-gradient"></div>
+                </div>
                 <div class="item-content">
                     <div>
                         <span class="item-tag">Algoritmos</span>
@@ -582,7 +625,6 @@
 
         renderer.setSize(window.innerWidth, window.innerHeight);
 
-        // Crear partículas flotantes
         const particlesCount = 400;
         const posArray = new Float32Array(particlesCount * 3);
 
@@ -692,6 +734,85 @@
                 card.style.borderColor = 'var(--glass-border)';
                 card.style.boxShadow = 'none';
             });
+        });
+
+        /* 7. GENERADOR DE ARTE PROCEDURAL PARA CADA TARJETA */
+        document.querySelectorAll('.preview-canvas').forEach((canvasEl) => {
+            const ctx = canvasEl.getContext('2d');
+            canvasEl.width = canvasEl.parentElement.clientWidth;
+            canvasEl.height = canvasEl.parentElement.clientHeight;
+            
+            const artType = canvasEl.getAttribute('data-art');
+            let step = 0;
+
+            function drawArt() {
+                step += 0.02;
+                ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+                
+                if (artType === 'fluids') {
+                    for(let i = 0; i < 5; i++) {
+                        ctx.beginPath();
+                        ctx.lineWidth = 3;
+                        ctx.strokeStyle = i % 2 === 0 ? '#38bdf8' : '#c084fc';
+                        for(let x = 0; x < canvasEl.width; x += 10) {
+                            let y = canvasEl.height / 2 + Math.sin(x * 0.02 + step + i) * 30 * Math.cos(step * 0.5);
+                            if(x === 0) ctx.moveTo(x, y);
+                            else ctx.lineTo(x, y);
+                        }
+                        ctx.stroke();
+                    }
+                } else if (artType === 'flora') {
+                    ctx.save();
+                    ctx.translate(canvasEl.width / 2, canvasEl.height / 2);
+                    for(let i = 0; i < 8; i++) {
+                        ctx.rotate(Math.PI / 4);
+                        ctx.beginPath();
+                        ctx.fillStyle = 'rgba(52, 211, 153, 0.25)';
+                        ctx.ellipse(0, 20 + Math.sin(step)*10, 15, 40, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                } else if (artType === 'spectra') {
+                    ctx.save();
+                    ctx.translate(canvasEl.width / 2, canvasEl.height / 2);
+                    for(let i = 1; i <= 4; i++) {
+                        ctx.beginPath();
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = i % 2 === 0 ? '#f472b6' : '#38bdf8';
+                        ctx.arc(0, 0, i * 25 + Math.sin(step + i) * 8, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                } else if (artType === 'voxels') {
+                    ctx.fillStyle = 'rgba(251, 146, 60, 0.3)';
+                    for(let x = 20; x < canvasEl.width; x += 30) {
+                        for(let y = 20; y < canvasEl.height; y += 30) {
+                            let size = 10 + Math.sin(step + x * 0.1) * 6;
+                            ctx.fillRect(x - size/2, y - size/2, size, size);
+                        }
+                    }
+                } else if (artType === 'quantum') {
+                    ctx.beginPath();
+                    ctx.arc(canvasEl.width / 2, canvasEl.height / 2, Math.abs(Math.sin(step)) * 70, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#34d399';
+                    ctx.lineWidth = 4;
+                    ctx.stroke();
+                } else if (artType === 'fractal') {
+                    ctx.save();
+                    ctx.translate(canvasEl.width / 2, canvasEl.height / 2);
+                    ctx.rotate(step * 0.5);
+                    ctx.fillStyle = 'rgba(168, 85, 247, 0.4)';
+                    ctx.fillRect(-30, -30, 60, 60);
+                    ctx.rotate(-step);
+                    ctx.strokeStyle = '#38bdf8';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(-45, -45, 90, 90);
+                    ctx.restore();
+                }
+
+                requestAnimationFrame(drawArt);
+            }
+            drawArt();
         });
     </script>
 </body>
