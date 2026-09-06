@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AETHERIS // Digital Artist & Creative Developer</title>
+    <!-- Three.js para el objeto 3D interecativo -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         /* RESET & BASE */
         * {
@@ -11,15 +13,65 @@
             padding: 0;
             box-sizing: border-box;
             scroll-behavior: smooth;
+            cursor: none; /* Oculta el cursor nativo para usar el personalizado */
+        }
+
+        :root {
+            --bg-main: #080911;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(18, 22, 38, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --card-inner: rgba(10, 13, 24, 0.6);
+            --cursor-color: #38bdf8;
+        }
+
+        [data-theme="light"] {
+            --bg-main: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --card-inner: rgba(255, 255, 255, 0.85);
+            --cursor-color: #6366f1;
         }
 
         body {
-            background-color: #080911;
-            color: #f1f5f9;
+            background-color: var(--bg-main);
+            color: var(--text-main);
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
             line-height: 1.6;
+            transition: background-color 0.4s, color 0.4s;
+        }
+
+        /* CURSOR PERSONALIZADO */
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--cursor-color);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height: 0.2s, background-color 0.2s;
+            z-index: 9999;
+        }
+
+        .custom-cursor-dot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 4px;
+            background-color: var(--cursor-color);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
         }
 
         /* AURORA BACKGROUND */
@@ -81,17 +133,18 @@
         }
 
         .glass-card {
-            background: rgba(18, 22, 38, 0.45);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 35px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.37);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transition: background 0.4s, border 0.4s;
         }
 
-        /* NAVIGATION */
+        /* NAVIGATION & CONTROLS */
         nav {
             display: flex;
             justify-content: space-between;
@@ -112,13 +165,19 @@
             text-decoration: none;
         }
 
-        .nav-links {
+        .nav-right {
             display: flex;
+            align-items: center;
             gap: 25px;
         }
 
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
         .nav-links a {
-            color: #94a3b8;
+            color: var(--text-muted);
             text-decoration: none;
             font-size: 0.95rem;
             transition: color 0.3s;
@@ -126,6 +185,21 @@
 
         .nav-links a:hover {
             color: #38bdf8;
+        }
+
+        .theme-toggle {
+            background: var(--glass-border);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            border-color: #38bdf8;
         }
 
         /* HERO SECTION */
@@ -139,14 +213,11 @@
             font-weight: 800;
             line-height: 1.15;
             margin-bottom: 20px;
-            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         .hero p {
             font-size: 1.2rem;
-            color: #94a3b8;
+            color: var(--text-muted);
             max-width: 650px;
             margin: 0 auto 35px auto;
         }
@@ -170,6 +241,26 @@
             box-shadow: 0 0 35px rgba(244, 114, 182, 0.6);
         }
 
+        /* OBJETO 3D INTERACTIVO (CANVAS CONTAINER) */
+        .object-3d-box {
+            width: 100%;
+            height: 350px;
+            background: var(--card-inner);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 15px;
+            cursor: grab;
+        }
+        .object-3d-box:active {
+            cursor: grabbing;
+        }
+        .canvas-container {
+            width: 100%;
+            height: 100%;
+        }
+
         /* METRICS / STATS */
         .stats-grid {
             display: grid;
@@ -180,8 +271,8 @@
         }
 
         .stat-card {
-            background: rgba(10, 13, 24, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: var(--card-inner);
+            border: 1px solid var(--glass-border);
             padding: 20px;
             border-radius: 16px;
         }
@@ -195,14 +286,14 @@
 
         .stat-label {
             font-size: 0.85rem;
-            color: #94a3b8;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         /* MINIJUEGO: ATRAPA EL ORBE */
         .game-box {
-            background: rgba(10, 13, 24, 0.7);
+            background: var(--card-inner);
             border: 1px solid rgba(56, 189, 248, 0.3);
             border-radius: 16px;
             padding: 20px;
@@ -230,7 +321,7 @@
             flex-grow: 1;
             margin-top: 10px;
             border-radius: 12px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.2);
         }
 
         #target-orb {
@@ -245,16 +336,12 @@
             transition: transform 0.1s;
         }
 
-        #target-orb:active {
-            transform: scale(0.85);
-        }
-
         .game-msg {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #f1f5f9;
+            color: var(--text-main);
             font-size: 1.1rem;
             z-index: 3;
             text-align: center;
@@ -271,9 +358,9 @@
         }
 
         .filter-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #94a3b8;
+            background: var(--glass-border);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
             padding: 8px 18px;
             border-radius: 20px;
             cursor: pointer;
@@ -291,7 +378,6 @@
         .section-title {
             font-size: 1.8rem;
             margin-bottom: 25px;
-            color: #f8fafc;
             letter-spacing: 1px;
             text-align: center;
         }
@@ -304,8 +390,8 @@
         }
 
         .art-item {
-            background: rgba(10, 13, 24, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: var(--card-inner);
+            border: 1px solid var(--glass-border);
             border-radius: 14px;
             padding: 20px;
             transition: transform 0.1s ease, border-color 0.3s ease, box-shadow 0.3s ease;
@@ -336,7 +422,7 @@
 
         .art-item p {
             font-size: 0.9rem;
-            color: #94a3b8;
+            color: var(--text-muted);
         }
 
         /* TESTIMONIALS */
@@ -348,12 +434,12 @@
         }
 
         .testimonial-card {
-            background: rgba(10, 13, 24, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: var(--card-inner);
+            border: 1px solid var(--glass-border);
             padding: 20px;
             border-radius: 14px;
             font-size: 0.9rem;
-            color: #cbd5e1;
+            color: var(--text-muted);
             font-style: italic;
         }
 
@@ -379,10 +465,10 @@
         .form-group input, .form-group textarea {
             width: 100%;
             padding: 14px;
-            background: rgba(10, 13, 24, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--card-inner);
+            border: 1px solid var(--glass-border);
             border-radius: 10px;
-            color: #f1f5f9;
+            color: var(--text-main);
             font-size: 0.95rem;
             outline: none;
             transition: border-color 0.3s;
@@ -407,12 +493,16 @@
         footer {
             text-align: center;
             padding: 40px 0 20px 0;
-            color: #64748b;
+            color: var(--text-muted);
             font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
+
+    <!-- CURSOR PERSONALIZADO -->
+    <div class="custom-cursor" id="cursor"></div>
+    <div class="custom-cursor-dot" id="cursor-dot"></div>
 
     <div class="aurora-bg">
         <div class="blob blob-1"></div>
@@ -424,12 +514,15 @@
         <!-- NAVIGATION -->
         <nav class="glass-card">
             <a href="#" class="logo">AETHERIS</a>
-            <div class="nav-links">
-                <a href="galeria.html">Galería</a>
-                <a href="#juego">Minijuego</a>
-                <a href="#obras">Proyectos</a>
-                <a href="#testimonios">Opiniones</a>
-                <a href="#contacto">Contacto</a>
+            <div class="nav-right">
+                <div class="nav-links">
+                    <a href="galeria.html">Galería</a>
+                    <a href="#objeto3d">Objeto 3D</a>
+                    <a href="#juego">Minijuego</a>
+                    <a href="#obras">Proyectos</a>
+                    <a href="#contacto">Contacto</a>
+                </div>
+                <button class="theme-toggle" id="theme-btn">Cambiar Tema</button>
             </div>
         </nav>
 
@@ -457,6 +550,15 @@
             </div>
         </div>
 
+        <!-- OBJETO 3D INTERACTIVO ROTABLE -->
+        <section id="objeto3d" class="glass-card">
+            <h2 class="section-title">Escultura 3D Interactiva</h2>
+            <p style="color: var(--text-muted); text-align: center; margin-bottom: 10px;">Haz clic y arrastra con el ratón para rotar libremente el objeto en tiempo real.</p>
+            <div class="object-3d-box">
+                <div id="canvas-3d" class="canvas-container"></div>
+            </div>
+        </section>
+
         <!-- MINIJUEGO: ATRAPA EL ORBE -->
         <section id="juego" class="glass-card">
             <h2 class="section-title">Minijuego: Atrapa el Orbe Neón</h2>
@@ -479,7 +581,6 @@
         <section id="obras" class="glass-card">
             <h2 class="section-title">Colecciones Seleccionadas</h2>
             
-            <!-- Filters -->
             <div class="filter-container">
                 <button class="filter-btn active" onclick="filterSelection('all')">Todos</button>
                 <button class="filter-btn" onclick="filterSelection('3d')">3D & Render</button>
@@ -487,7 +588,6 @@
                 <button class="filter-btn" onclick="filterSelection('vr')">Realidad Virtual</button>
             </div>
 
-            <!-- Grid Items with 3D Tilt Effect -->
             <div class="grid">
                 <div class="art-item 3d card-3d">
                     <span class="art-tag">Simulación 3D</span>
@@ -530,7 +630,7 @@
         <!-- CONTACT SECTION -->
         <section id="contacto" class="glass-card" style="text-align: center;">
             <h2 class="section-title">¿Tienes un proyecto en mente?</h2>
-            <p style="color: #94a3b8;">Disponible para encargos, dirección de arte digital y colaboraciones.</p>
+            <p style="color: var(--text-muted);">Disponible para encargos, dirección de arte digital y colaboraciones.</p>
             
             <div class="email-display">carlosgjponte69@gmail.com</div>
 
@@ -557,9 +657,115 @@
         </footer>
     </div>
 
-    <!-- JAVASCRIPT: FILTERS, 3D ROLL EFFECT & MINIGAME -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        /* 1. Filtros de Categorías */
+        /* 1. CURSOR PERSONALIZADO */
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursor-dot');
+
+        window.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        // Efecto hover para elementos interactivos
+        document.querySelectorAll('a, button, .art-item, input, textarea').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.transform = 'translate(-50%, -50%) scale(1.6)';
+                cursor.style.backgroundColor = 'rgba(56, 189, 248, 0.1)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                cursor.style.backgroundColor = 'transparent';
+            });
+        });
+
+        /* 2. CAMBIO DE TEMA (CLARO / OSCURO) */
+        const themeBtn = document.getElementById('theme-btn');
+        const htmlElement = document.documentElement;
+
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-theme', newTheme);
+            themeBtn.textContent = newTheme === 'dark' ? 'Cambiar a Tema Claro' : 'Cambiar a Tema Oscuro';
+        });
+
+        /* 3. OBJETO 3D INTERACTIVO CON THREE.JS */
+        const container3D = document.getElementById('canvas-3d');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, container3D.clientWidth / container3D.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
+        renderer.setSize(container3D.clientWidth, container3D.clientHeight);
+        container3D.appendChild(renderer.domElement);
+
+        // Crear una geometría 3D abstracta (Toroide / Anudo o Icosaedro estilizado)
+        const geometry = new THREE.IcosahedronGeometry(2, 0);
+        const material = new THREE.MeshStandardMaterial({
+            color: 0x38bdf8,
+            wireframe: true,
+            roughness: 0.3,
+            metalness: 0.8
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+
+        // Iluminación
+        const light = new THREE.PointLight(0xa855f7, 3, 50);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+
+        camera.position.z = 5;
+
+        // Variables para control de rotación por ratón/tacto
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+
+        container3D.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.clientX - previousMousePosition.x;
+            const deltaY = e.clientY - previousMousePosition.y;
+
+            mesh.rotation.y += deltaX * 0.008;
+            mesh.rotation.x += deltaY * 0.008;
+
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // Animación automática de giro sutil si no se interactúa
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!isDragging) {
+                mesh.rotation.y += 0.003;
+                mesh.rotation.x += 0.002;
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Ajustar tamaño del canvas al redimensionar ventana
+        window.addEventListener('resize', () => {
+            camera.aspect = container3D.clientWidth / container3D.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container3D.clientWidth, container3D.clientHeight);
+        });
+
+        /* 4. FILTROS DE CATEGORÍAS */
         function filterSelection(category) {
             const items = document.querySelectorAll('.art-item');
             const buttons = document.querySelectorAll('.filter-btn');
@@ -576,7 +782,7 @@
             });
         }
 
-        /* 2. Minijuego Real: Atrapa el Orbe */
+        /* 5. MINIJUEGO: ATRAPA EL ORBE */
         const startBtn = document.getElementById('start-game-btn');
         const orb = document.getElementById('target-orb');
         const gameArea = document.getElementById('game-area');
@@ -633,7 +839,7 @@
             moveOrb();
         });
 
-        /* 3. Efecto Roll / Tilt 3D en Tarjetas */
+        /* 6. EFECTO ROLL / TILT 3D EN TARJETAS */
         const cards3D = document.querySelectorAll('.card-3d');
 
         cards3D.forEach(card => {
@@ -655,7 +861,7 @@
 
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
-                card.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                card.style.borderColor = 'var(--glass-border)';
                 card.style.boxShadow = 'none';
             });
         });
