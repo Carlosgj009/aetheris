@@ -4,437 +4,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GALERÍA VIRTUAL // AETHERIS</title>
-    <!-- Three.js para el fondo de partículas 3D -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            scroll-behavior: smooth;
-            cursor: none;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; cursor: none; }
 
-        /* PALETAS DE TEMAS Y COLORES */
         :root[data-theme="aurora"] {
-            --bg-main: #080911;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-            --glass-bg: rgba(18, 22, 38, 0.5);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --card-inner: rgba(10, 13, 24, 0.65);
-            --cursor-color: #38bdf8;
-            --accent-gradient: linear-gradient(90deg, #38bdf8, #c084fc, #f472b6);
-            --glow-color: rgba(56, 189, 248, 0.25);
+            --bg-main: #080911; --text-main: #f1f5f9; --text-muted: #94a3b8;
+            --glass-bg: rgba(18, 22, 38, 0.5); --glass-border: rgba(255, 255, 255, 0.08);
+            --card-inner: rgba(10, 13, 24, 0.65); --cursor-color: #38bdf8;
+            --accent-gradient: linear-gradient(90deg, #38bdf8, #c084fc, #f472b6); --glow-color: rgba(56, 189, 248, 0.25);
         }
-
         :root[data-theme="cyberpunk"] {
-            --bg-main: #050505;
-            --text-main: #0fff50;
-            --text-muted: #a0a0a0;
-            --glass-bg: rgba(20, 10, 20, 0.7);
-            --glass-border: rgba(255, 0, 85, 0.25);
-            --card-inner: rgba(10, 5, 10, 0.85);
-            --cursor-color: #ff0055;
-            --accent-gradient: linear-gradient(90deg, #ff0055, #ffe600, #0fff50);
-            --glow-color: rgba(255, 0, 85, 0.3);
+            --bg-main: #050505; --text-main: #0fff50; --text-muted: #a0a0a0;
+            --glass-bg: rgba(20, 10, 20, 0.7); --glass-border: rgba(255, 0, 85, 0.25);
+            --card-inner: rgba(10, 5, 10, 0.85); --cursor-color: #ff0055;
+            --accent-gradient: linear-gradient(90deg, #ff0055, #ffe600, #0fff50); --glow-color: rgba(255, 0, 85, 0.3);
         }
-
         :root[data-theme="solar"] {
-            --bg-main: #fffaf0;
-            --text-main: #2d1502;
-            --text-muted: #7c5a3c;
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(249, 115, 22, 0.25);
-            --card-inner: rgba(255, 243, 230, 0.9);
-            --cursor-color: #f97316;
-            --accent-gradient: linear-gradient(90deg, #f97316, #eab308, #ec4899);
-            --glow-color: rgba(249, 115, 22, 0.25);
+            --bg-main: #fffaf0; --text-main: #2d1502; --text-muted: #7c5a3c;
+            --glass-bg: rgba(255, 255, 255, 0.8); --glass-border: rgba(249, 115, 22, 0.25);
+            --card-inner: rgba(255, 243, 230, 0.9); --cursor-color: #f97316;
+            --accent-gradient: linear-gradient(90deg, #f97316, #eab308, #ec4899); --glow-color: rgba(249, 115, 22, 0.25);
         }
-
         :root[data-theme="emerald"] {
-            --bg-main: #022c22;
-            --text-main: #ecfdf5;
-            --text-muted: #6ee7b7;
-            --glass-bg: rgba(6, 78, 59, 0.4);
-            --glass-border: rgba(52, 211, 153, 0.2);
-            --card-inner: rgba(2, 44, 34, 0.7);
-            --cursor-color: #34d399;
-            --accent-gradient: linear-gradient(90deg, #34d399, #38bdf8, #818cf8);
-            --glow-color: rgba(52, 211, 153, 0.3);
+            --bg-main: #022c22; --text-main: #ecfdf5; --text-muted: #6ee7b7;
+            --glass-bg: rgba(6, 78, 59, 0.4); --glass-border: rgba(52, 211, 153, 0.2);
+            --card-inner: rgba(2, 44, 34, 0.7); --cursor-color: #34d399;
+            --accent-gradient: linear-gradient(90deg, #34d399, #38bdf8, #818cf8); --glow-color: rgba(52, 211, 153, 0.3);
         }
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-            line-height: 1.6;
-            transition: background-color 0.5s, color 0.5s;
-        }
+        body { background-color: var(--bg-main); color: var(--text-main); font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; overflow-x: hidden; line-height: 1.6; transition: background-color 0.5s, color 0.5s; }
 
-        /* CANVAS DE PARTICULAS 3D DE FONDO */
-        #bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            pointer-events: none;
-        }
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
 
-        /* CURSOR PERSONALIZADO */
-        .custom-cursor {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 22px;
-            height: 22px;
-            border: 2px solid var(--cursor-color);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            transition: width 0.2s, height: 0.2s, background-color 0.2s, border-color 0.3s;
-            z-index: 9999;
-        }
+        .custom-cursor { position: fixed; top: 0; left: 0; width: 22px; height: 22px; border: 2px solid var(--cursor-color); border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); transition: width 0.2s, height: 0.2s, background-color 0.2s, border-color 0.3s; z-index: 9999; }
+        .custom-cursor-dot { position: fixed; top: 0; left: 0; width: 4px; height: 4px; background-color: var(--cursor-color); border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); z-index: 10000; }
 
-        .custom-cursor-dot {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 4px;
-            background-color: var(--cursor-color);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            z-index: 10000;
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .glass-card { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); }
 
-        /* CONTENEDOR Y GLASSMORPHISM */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 30px; position: sticky; top: 20px; z-index: 100; }
+        .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: 2px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .nav-right { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .back-home { color: var(--text-muted); text-decoration: none; font-size: 0.95rem; transition: color 0.3s; }
+        .back-home:hover { color: var(--cursor-color); }
 
-        .glass-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-            transition: background 0.4s, border 0.4s;
-        }
+        .audio-btn { background: var(--card-inner); border: 1px solid var(--glass-border); color: var(--cursor-color); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
-        /* NAVEGACIÓN Y SELECTOR DE TEMAS */
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 30px;
-            position: sticky;
-            top: 20px;
-            z-index: 100;
-        }
-
-        .logo {
-            font-size: 1.4rem;
-            font-weight: 800;
-            letter-spacing: 2px;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-decoration: none;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .back-home {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.95rem;
-            transition: color 0.3s;
-        }
-
-        .back-home:hover {
-            color: var(--cursor-color);
-        }
-
-        .theme-selector {
-            display: flex;
-            gap: 6px;
-            background: var(--card-inner);
-            padding: 4px;
-            border-radius: 20px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .theme-dot {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: transform 0.2s;
-        }
-
+        .theme-selector { display: flex; gap: 6px; background: var(--card-inner); padding: 4px; border-radius: 20px; border: 1px solid var(--glass-border); }
+        .theme-dot { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .theme-dot:hover { transform: scale(1.2); }
-        .dot-aurora { background: #38bdf8; }
-        .dot-cyberpunk { background: #ff0055; }
-        .dot-solar { background: #f97316; }
-        .dot-emerald { background: #34d399; }
+        .dot-aurora { background: #38bdf8; } .dot-cyberpunk { background: #ff0055; } .dot-solar { background: #f97316; } .dot-emerald { background: #34d399; }
 
-        /* CABECERA DE LA GALERÍA */
-        .gallery-header {
-            text-align: center;
-            padding: 40px 20px 20px 20px;
-        }
+        .gallery-header { text-align: center; padding: 40px 20px 20px 20px; }
+        .gallery-header h1 { font-size: 3rem; font-weight: 800; margin-bottom: 15px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gallery-header p { color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
 
-        .gallery-header h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 15px;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .filter-container { display: flex; justify-content: center; gap: 10px; margin: 30px 0; flex-wrap: wrap; }
+        .filter-btn { background: var(--card-inner); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 10px 22px; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 600; }
+        .filter-btn.active, .filter-btn:hover { background: var(--glass-border); color: var(--cursor-color); border-color: var(--cursor-color); box-shadow: 0 0 15px var(--glow-color); }
 
-        .gallery-header p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* FILTROS */
-        .filter-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            background: var(--card-inner);
-            border: 1px solid var(--glass-border);
-            color: var(--text-muted);
-            padding: 10px 22px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .filter-btn.active, .filter-btn:hover {
-            background: var(--glass-border);
-            color: var(--cursor-color);
-            border-color: var(--cursor-color);
-            box-shadow: 0 0 15px var(--glow-color);
-        }
-
-        /* GRID 3D DE OBRAS */
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-            perspective: 1200px;
-            padding: 20px 0;
-        }
-
-        .gallery-item {
-            background: var(--card-inner);
-            border: 1px solid var(--glass-border);
-            border-radius: 18px;
-            overflow: hidden;
-            transition: transform 0.1s ease, border-color 0.3s, box-shadow 0.3s;
-            transform-style: preserve-3d;
-            will-change: transform;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-        }
-
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; perspective: 1200px; padding: 20px 0; }
+        .gallery-item { background: var(--card-inner); border: 1px solid var(--glass-border); border-radius: 18px; overflow: hidden; transition: transform 0.1s ease, border-color 0.3s; transform-style: preserve-3d; cursor: pointer; display: flex; flex-direction: column; position: relative; }
         .gallery-item.hide { display: none; }
 
-        .item-preview-box {
-            width: 100%;
-            height: 220px;
-            background: #000;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .fav-btn { position: absolute; top: 15px; right: 15px; background: var(--card-inner); border: 1px solid var(--glass-border); width: 35px; height: 35px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: transform 0.2s; }
+        .fav-btn.active { color: #f43f5e; border-color: #f43f5e; }
+        .fav-btn:hover { transform: scale(1.15); }
 
-        .preview-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transition: transform 0.5s ease;
-        }
+        .item-preview-box { width: 100%; height: 220px; background: #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .preview-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: transform 0.5s ease; }
+        .gallery-item:hover .preview-canvas { transform: scale(1.1); }
+        .preview-overlay-gradient { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 50%, rgba(5, 5, 10, 0.85)); pointer-events: none; }
 
-        .gallery-item:hover .preview-canvas {
-            transform: scale(1.1);
-        }
+        .item-content { padding: 22px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .item-tag { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; background: var(--glass-border); color: var(--cursor-color); border-radius: 20px; margin-bottom: 10px; text-transform: uppercase; width: max-content; }
+        .gallery-item h3 { font-size: 1.3rem; margin-bottom: 8px; }
+        .gallery-item p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px; }
+        .item-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--cursor-color); font-weight: 600; }
 
-        .preview-overlay-gradient {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(5, 5, 10, 0.85));
-            pointer-events: none;
-        }
+        /* MODAL CON VISOR 3D INTERACTIVO */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); z-index: 10000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-card { background: var(--card-inner); border: 1px solid var(--glass-border); width: 90%; max-width: 750px; border-radius: 24px; padding: 35px; position: relative; box-shadow: 0 0 50px var(--glow-color); transform: scale(0.9); transition: transform 0.3s ease; }
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        .close-modal { position: absolute; top: 20px; right: 20px; background: var(--glass-border); border: none; color: var(--text-main); width: 35px; height: 35px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        .item-content {
-            padding: 22px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+        /* Visor 3D dentro del Modal */
+        #modal-3d-container { width: 100%; height: 220px; background: rgba(0,0,0,0.3); border-radius: 14px; margin-bottom: 20px; border: 1px solid var(--glass-border); }
 
-        .item-tag {
-            display: inline-block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 4px 10px;
-            background: var(--glass-border);
-            color: var(--cursor-color);
-            border-radius: 20px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            width: max-content;
-        }
-
-        .gallery-item h3 {
-            font-size: 1.3rem;
-            margin-bottom: 8px;
-        }
-
-        .gallery-item p {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 15px;
-        }
-
-        .item-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            color: var(--cursor-color);
-            font-weight: 600;
-        }
-
-        /* MODAL DE VISTA AMPLIADA */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(15px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-card {
-            background: var(--card-inner);
-            border: 1px solid var(--glass-border);
-            width: 90%;
-            max-width: 700px;
-            border-radius: 24px;
-            padding: 35px;
-            position: relative;
-            box-shadow: 0 0 50px var(--glow-color);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.active .modal-card {
-            transform: scale(1);
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--glass-border);
-            border: none;
-            color: var(--text-main);
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            font-size: 1.1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s;
-        }
-
-        .close-modal:hover { background: var(--cursor-color); color: #fff; }
-
-        .cta-btn {
-            display: inline-block;
-            padding: 12px 28px;
-            background: var(--accent-gradient);
-            color: #fff;
-            text-decoration: none;
-            font-weight: 600;
-            border-radius: 30px;
-            box-shadow: 0 0 20px var(--glow-color);
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .cta-btn:hover {
-            transform: translateY(-3px);
-        }
-
-        footer {
-            text-align: center;
-            padding: 40px 0 20px 0;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
+        .cta-btn { display: inline-block; padding: 12px 28px; background: var(--accent-gradient); color: #fff; text-decoration: none; font-weight: 600; border-radius: 30px; box-shadow: 0 0 20px var(--glow-color); border: none; cursor: pointer; }
+        footer { text-align: center; padding: 40px 0 20px 0; color: var(--text-muted); font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-    <!-- CANVAS DE FONDO 3D -->
     <canvas id="bg-canvas"></canvas>
-
-    <!-- CURSOR PERSONALIZADO -->
     <div class="custom-cursor" id="cursor"></div>
     <div class="custom-cursor-dot" id="cursor-dot"></div>
 
@@ -444,6 +109,7 @@
             <a href="index.html" class="logo">AETHERIS</a>
             <div class="nav-right">
                 <a href="index.html" class="back-home">← Volver al Inicio</a>
+                <button class="audio-btn" id="audio-toggle" onclick="toggleAmbientAudio()">🔇 <span>Audio Amb.</span></button>
                 <div class="theme-selector" title="Cambiar paleta de colores">
                     <div class="theme-dot dot-aurora" onclick="setTheme('aurora')"></div>
                     <div class="theme-dot dot-cyberpunk" onclick="setTheme('cyberpunk')"></div>
@@ -457,11 +123,11 @@
         <header class="gallery-header glass-card">
             <span class="item-tag">Exhibición Inmersiva</span>
             <h1>Galería Tridimensional</h1>
-            <p>Explora la colección completa de esculturas algorítmicas, entornos virtuales y simulaciones interactivas.</p>
+            <p>Explora la colección completa con visor 3D interactivo y tus favoritos guardados.</p>
             
-            <!-- FILTROS -->
             <div class="filter-container">
                 <button class="filter-btn active" onclick="filterGallery('all')">Todos</button>
+                <button class="filter-btn" onclick="filterGallery('favorites')">★ Favoritos</button>
                 <button class="filter-btn" onclick="filterGallery('3d')">3D & Render</button>
                 <button class="filter-btn" onclick="filterGallery('algo')">Algoritmos</button>
                 <button class="filter-btn" onclick="filterGallery('vr')">Realidad Virtual</button>
@@ -469,318 +135,289 @@
             </div>
         </header>
 
-        <!-- GRID DE OBRAS 3D -->
-        <div class="gallery-grid">
+        <!-- GRID DE OBRAS -->
+        <div class="gallery-grid" id="gallery-grid-container">
             <!-- Item 1 -->
-            <div class="gallery-item 3d card-3d" onclick="openModal('Neon Entropy', 'Simulación avanzada de fluidos luminosos y comportamiento caótico de partículas en espacios virtuales de alta densidad.', 'Simulación 3D')">
-                <div class="item-preview-box">
-                    <canvas class="preview-canvas" data-art="fluids"></canvas>
-                    <div class="preview-overlay-gradient"></div>
-                </div>
+            <div class="gallery-item 3d card-3d" data-id="g1" onclick="openModal('Neon Entropy', 'Simulación avanzada de fluidos luminosos y comportamiento caótico.', 'Simulación 3D', 'g1')">
+                <button class="fav-btn" onclick="event.stopPropagation(); toggleFavorite('g1', this)">♥</button>
+                <div class="item-preview-box"><canvas class="preview-canvas" data-art="fluids"></canvas><div class="preview-overlay-gradient"></div></div>
                 <div class="item-content">
-                    <div>
-                        <span class="item-tag">Simulación 3D</span>
-                        <h3>Neon Entropy</h3>
-                        <p>Simulación de fluidos luminosos y partículas.</p>
-                    </div>
-                    <div class="item-footer"><span>Explorar obra ➔</span><span>2026</span></div>
+                    <div><span class="item-tag">Simulación 3D</span><h3>Neon Entropy</h3><p>Simulación de fluidos luminosos y partículas.</p></div>
+                    <div class="item-footer"><span>Explorar ➔</span><span>2026</span></div>
                 </div>
             </div>
 
             <!-- Item 2 -->
-            <div class="gallery-item algo card-3d" onclick="openModal('Cybernetic Flora', 'Estudio conceptual de botánica futurista generada mediante sistemas de L-Systems y morfología algorítmica.', 'Biología Sintética')">
-                <div class="item-preview-box">
-                    <canvas class="preview-canvas" data-art="flora"></canvas>
-                    <div class="preview-overlay-gradient"></div>
-                </div>
+            <div class="gallery-item algo card-3d" data-id="g2" onclick="openModal('Cybernetic Flora', 'Estudio conceptual de botánica futurista generada por L-Systems.', 'Biología Sintética', 'g2')">
+                <button class="fav-btn" onclick="event.stopPropagation(); toggleFavorite('g2', this)">♥</button>
+                <div class="item-preview-box"><canvas class="preview-canvas" data-art="flora"></canvas><div class="preview-overlay-gradient"></div></div>
                 <div class="item-content">
-                    <div>
-                        <span class="item-tag">Biología Sintética</span>
-                        <h3>Cybernetic Flora</h3>
-                        <p>Botánica futurista generada por algoritmos.</p>
-                    </div>
-                    <div class="item-footer"><span>Explorar obra ➔</span><span>2026</span></div>
+                    <div><span class="item-tag">Biología Sintética</span><h3>Cybernetic Flora</h3><p>Botánica futurista generada por algoritmos.</p></div>
+                    <div class="item-footer"><span>Explorar ➔</span><span>2026</span></div>
                 </div>
             </div>
 
             <!-- Item 3 -->
-            <div class="gallery-item 3d card-3d" onclick="openModal('Aura Spectra', 'Estructuras geométricas traslúcidas con iluminación dinámica inspirada en los espectros de luz boreal.', 'Escultura Digital')">
-                <div class="item-preview-box">
-                    <canvas class="preview-canvas" data-art="spectra"></canvas>
-                    <div class="preview-overlay-gradient"></div>
-                </div>
+            <div class="gallery-item 3d card-3d" data-id="g3" onclick="openModal('Aura Spectra', 'Estructuras geométricas traslúcidas con iluminación dinámica.', 'Escultura Digital', 'g3')">
+                <button class="fav-btn" onclick="event.stopPropagation(); toggleFavorite('g3', this)">♥</button>
+                <div class="item-preview-box"><canvas class="preview-canvas" data-art="spectra"></canvas><div class="preview-overlay-gradient"></div></div>
                 <div class="item-content">
-                    <div>
-                        <span class="item-tag">Escultura Digital</span>
-                        <h3>Aura Spectra</h3>
-                        <p>Geometrías traslúcidas con iluminación dinámica.</p>
-                    </div>
-                    <div class="item-footer"><span>Explorar obra ➔</span><span>2025</span></div>
+                    <div><span class="item-tag">Escultura Digital</span><h3>Aura Spectra</h3><p>Geometrías traslúcidas con iluminación dinámica.</p></div>
+                    <div class="item-footer"><span>Explorar ➔</span><span>2025</span></div>
                 </div>
             </div>
 
             <!-- Item 4 -->
-            <div class="gallery-item vr card-3d" onclick="openModal('Voxel Dreams', 'Entornos inmersivos diseñados específicamente para exposiciones virtuales dentro del metaverso abierto.', 'Realidad Virtual')">
-                <div class="item-preview-box">
-                    <canvas class="preview-canvas" data-art="voxels"></canvas>
-                    <div class="preview-overlay-gradient"></div>
-                </div>
+            <div class="gallery-item vr card-3d" data-id="g4" onclick="openModal('Voxel Dreams', 'Entornos inmersivos diseñados para el metaverso abierto.', 'Realidad Virtual', 'g4')">
+                <button class="fav-btn" onclick="event.stopPropagation(); toggleFavorite('g4', this)">♥</button>
+                <div class="item-preview-box"><canvas class="preview-canvas" data-art="voxels"></canvas><div class="preview-overlay-gradient"></div></div>
                 <div class="item-content">
-                    <div>
-                        <span class="item-tag">Realidad Virtual</span>
-                        <h3>Voxel Dreams</h3>
-                        <p>Entornos inmersivos para galerías del metaverso.</p>
-                    </div>
-                    <div class="item-footer"><span>Explorar obra ➔</span><span>2025</span></div>
+                    <div><span class="item-tag">Realidad Virtual</span><h3>Voxel Dreams</h3><p>Entornos inmersivos para galerías virtuales.</p></div>
+                    <div class="item-footer"><span>Explorar ➔</span><span>2025</span></div>
                 </div>
             </div>
 
             <!-- Item 5 -->
-            <div class="gallery-item motion card-3d" onclick="openModal('Quantum Pulse', 'Pieza de arte generativo en bucle infinito que reacciona a frecuencias de sonido electrónico sintético.', 'Motion Graphics')">
-                <div class="item-preview-box">
-                    <canvas class="preview-canvas" data-art="quantum"></canvas>
-                    <div class="preview-overlay-gradient"></div>
-                </div>
+            <div class="gallery-item motion card-3d" data-id="g5" onclick="openModal('Quantum Pulse', 'Pieza de arte generativo que reacciona a frecuencias de sonido.', 'Motion Graphics', 'g5')">
+                <button class="fav-btn" onclick="event.stopPropagation(); toggleFavorite('g5', this)">♥</button>
+                <div class="item-preview-box"><canvas class="preview-canvas" data-art="quantum"></canvas><div class="preview-overlay-gradient"></div></div>
                 <div class="item-content">
-                    <div>
-                        <span class="item-tag">Motion Graphics</span>
-                        <h3>Quantum Pulse</h3>
-                        <p>Arte generativo en bucle con frecuencias de sonido.</p>
-                    </div>
-                    <div class="item-footer"><span>Explorar obra ➔</span><span>2026</span></div>
+                    <div><span class="item-tag">Motion Graphics</span><h3>Quantum Pulse</h3><p>Arte generativo en bucle con frecuencias.</p></div>
+                    <div class="item-footer"><span>Explorar ➔</span><span>2026</span></div>
                 </div>
             </div>
 
             <!-- Item 6 -->
-            <div class="gallery-item algo card-3d" onclick="openModal('Fractal Monoliths', 'Estructuras monolíticas basadas en matemáticas fractales complejas y renderizado procedural en tiempo real.', 'Algoritmos')">
-                <div class="item-preview-box">
-                    <canvas class="preview-canvas" data-art="fractal"></canvas>
-                    <div class="preview-overlay-gradient"></div>
-                </div>
+            <div class="gallery-item algo card-3d" data-id="g6" onclick="openModal('Fractal Monoliths', 'Estructuras monolíticas basadas en matemáticas fractales.', 'Algoritmos', 'g6')">
+                <button class="fav-btn" onclick="event.stopPropagation(); toggleFavorite('g6', this)">♥</button>
+                <div class="item-preview-box"><canvas class="preview-canvas" data-art="fractal"></canvas><div class="preview-overlay-gradient"></div></div>
                 <div class="item-content">
-                    <div>
-                        <span class="item-tag">Algoritmos</span>
-                        <h3>Fractal Monoliths</h3>
-                        <p>Monolitos basados en matemáticas fractales.</p>
-                    </div>
-                    <div class="item-footer"><span>Explorar obra ➔</span><span>2025</span></div>
+                    <div><span class="item-tag">Algoritmos</span><h3>Fractal Monoliths</h3><p>Monolitos basados en matemáticas fractales.</p></div>
+                    <div class="item-footer"><span>Explorar ➔</span><span>2025</span></div>
                 </div>
             </div>
         </div>
 
-        <footer>
-            <p>© 2026 Aetheris Studio. Galería Virtual Interactiva. Contacto: carlosgjponte69@gmail.com</p>
-        </footer>
+        <footer><p>© 2026 Aetheris Studio. Galería Virtual Interactiva.</p></footer>
     </div>
 
-    <!-- VENTANA MODAL PARA DETALLE -->
+    <!-- MODAL CON VISOR 3D -->
     <div class="modal-overlay" id="gallery-modal" onclick="closeModal(event)">
         <div class="modal-card">
             <button class="close-modal" onclick="closeModalForce()">✕</button>
-            <span class="item-tag" id="modal-tag" style="margin-bottom: 15px;">Categoría</span>
-            <h2 id="modal-title" style="font-size: 2rem; margin-bottom: 15px;">Título de la Obra</h2>
-            <p id="modal-desc" style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 25px; line-height: 1.7;">Descripción detallada...</p>
-            <a href="index.html#contacto" class="cta-btn" style="display: inline-block;">Consultar Disponibilidad de la Obra</a>
+            <div id="modal-3d-container"></div>
+            <span class="item-tag" id="modal-tag" style="margin-bottom: 10px;">Categoría</span>
+            <h2 id="modal-title" style="font-size: 1.8rem; margin-bottom: 10px;">Título</h2>
+            <p id="modal-desc" style="color: var(--text-muted); font-size: 1rem; margin-bottom: 20px;"></p>
+            <a href="index.html#contacto" class="cta-btn">Consultar Disponibilidad</a>
         </div>
     </div>
 
-    <!-- SCRIPT GLOBAL DE LA GALERÍA -->
+    <!-- SCRIPT DE LA GALERÍA -->
     <script>
-        /* 1. CURSOR PERSONALIZADO */
         const cursor = document.getElementById('cursor');
         const cursorDot = document.getElementById('cursor-dot');
-
         window.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-            cursorDot.style.left = e.clientX + 'px';
-            cursorDot.style.top = e.clientY + 'px';
+            cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+            cursorDot.style.left = e.clientX + 'px'; cursorDot.style.top = e.clientY + 'px';
         });
 
         document.querySelectorAll('a, button, .gallery-item, .theme-dot').forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                cursor.style.transform = 'translate(-50%, -50%) scale(1.6)';
-                cursor.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-            });
-            el.addEventListener('mouseleave', () => {
-                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
-                cursor.style.backgroundColor = 'transparent';
-            });
+            el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%, -50%) scale(1.6)'; cursor.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; });
+            el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%, -50%) scale(1)'; cursor.style.backgroundColor = 'transparent'; });
         });
 
-        /* 2. CAMBIO DE PALETA DE COLORES */
         function setTheme(themeName) {
             document.documentElement.setAttribute('data-theme', themeName);
             localStorage.setItem('aetheris-theme', themeName);
+            updateAudioThemeFreq(themeName);
         }
-
         const savedTheme = localStorage.getItem('aetheris-theme');
-        if (savedTheme) { setTheme(savedTheme); }
+        if (savedTheme) setTheme(savedTheme);
 
-        /* 3. FONDO DE PARTÍCULAS 3D CON THREE.JS */
-        const canvas = document.getElementById('bg-canvas');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-
-        renderer.setSize(window.innerWidth, window.innerHeight);
-
-        const particlesCount = 400;
-        const posArray = new Float32Array(particlesCount * 3);
-
-        for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 15;
+        /* AUDIO AMBIENTAL */
+        let audioCtx = null, isAudioPlaying = false, oscillator = null, gainNode = null;
+        function toggleAmbientAudio() {
+            const btn = document.getElementById('audio-toggle');
+            if (!isAudioPlaying) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                oscillator = audioCtx.createOscillator();
+                gainNode = audioCtx.createGain();
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                oscillator.type = currentTheme === 'cyberpunk' ? 'sawtooth' : 'sine';
+                oscillator.frequency.setValueAtTime(currentTheme === 'cyberpunk' ? 150 : 220, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                isAudioPlaying = true;
+                btn.innerHTML = "🔊 <span>Audio Activo</span>";
+            } else {
+                if (oscillator) oscillator.stop();
+                if (audioCtx) audioCtx.close();
+                isAudioPlaying = false;
+                btn.innerHTML = "🔇 <span>Audio Amb.</span>";
+            }
+        }
+        function updateAudioThemeFreq(theme) {
+            if (isAudioPlaying && oscillator && audioCtx) {
+                oscillator.frequency.setValueAtTime(theme === 'cyberpunk' ? 150 : 220, audioCtx.currentTime);
+                oscillator.type = theme === 'cyberpunk' ? 'sawtooth' : 'sine';
+            }
         }
 
-        const particlesGeometry = new THREE.BufferGeometry();
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.03,
-            color: 0x38bdf8,
-            transparent: true,
-            opacity: 0.7
-        });
-
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
-
-        camera.position.z = 3;
-
-        let mouseX = 0;
-        let mouseY = 0;
-
-        window.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX / window.innerWidth) - 0.5;
-            mouseY = (event.clientY / window.innerHeight) - 0.5;
-        });
-
-        function animateParticles() {
-            requestAnimationFrame(animateParticles);
-            particlesMesh.rotation.y += 0.001 + (mouseX * 0.05);
-            particlesMesh.rotation.x += 0.001 + (mouseY * 0.05);
-            renderer.render(scene, camera);
+        /* FAVORITOS & FILTRO */
+        function toggleFavorite(id, btn) {
+            let favs = JSON.parse(localStorage.getItem('aetheris-favs')) || [];
+            if (favs.includes(id)) {
+                favs = favs.filter(item => item !== id);
+                btn.classList.remove('active');
+            } else {
+                favs.push(id);
+                btn.classList.add('active');
+            }
+            localStorage.setItem('aetheris-favs', JSON.stringify(favs));
         }
-        animateParticles();
 
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        window.addEventListener('DOMContentLoaded', () => {
+            const favs = JSON.parse(localStorage.getItem('aetheris-favs')) || [];
+            document.querySelectorAll('.gallery-item').forEach(item => {
+                const id = item.getAttribute('data-id');
+                const btn = item.querySelector('.fav-btn');
+                if (btn && favs.includes(id)) btn.classList.add('active');
+            });
         });
 
-        /* 4. FILTROS DE LA GALERÍA */
         function filterGallery(category) {
             const items = document.querySelectorAll('.gallery-item');
             const buttons = document.querySelectorAll('.filter-btn');
-
             buttons.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
+            const favs = JSON.parse(localStorage.getItem('aetheris-favs')) || [];
+
             items.forEach(item => {
-                if (category === 'all' || item.classList.contains(category)) {
+                const id = item.getAttribute('data-id');
+                if (category === 'all') {
                     item.classList.remove('hide');
+                } else if (category === 'favorites') {
+                    if (favs.includes(id)) item.classList.remove('hide');
+                    else item.classList.add('hide');
                 } else {
-                    item.classList.add('hide');
+                    if (item.classList.contains(category)) item.classList.remove('hide');
+                    else item.classList.add('hide');
                 }
             });
         }
 
-        /* 5. MODAL DE VISTA AMPLIADA */
+        /* FONDO DE PARTÍCULAS 3D */
+        const canvas = document.getElementById('bg-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        const particlesCount = 400, posArray = new Float32Array(particlesCount * 3);
+        for(let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 15;
+        const geom = new THREE.BufferGeometry(); geom.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMesh = new THREE.Points(geom, new THREE.PointsMaterial({ size: 0.03, color: 0x38bdf8, transparent: true, opacity: 0.7 }));
+        scene.add(particlesMesh); camera.position.z = 3;
+
+        let mouseX = 0, mouseY = 0;
+        window.addEventListener('mousemove', (e) => { mouseX = (e.clientX / window.innerWidth) - 0.5; mouseY = (e.clientY / window.innerHeight) - 0.5; });
+        function animateBg() {
+            requestAnimationFrame(animateBg);
+            particlesMesh.rotation.y += 0.001 + (mouseX * 0.05);
+            particlesMesh.rotation.x += 0.001 + (mouseY * 0.05);
+            renderer.render(scene, camera);
+        }
+        animateBg();
+
+        /* MODAL CON VISOR 3D INDIVIDUAL */
         const modal = document.getElementById('gallery-modal');
         const modalTitle = document.getElementById('modal-title');
         const modalDesc = document.getElementById('modal-desc');
         const modalTag = document.getElementById('modal-tag');
+        
+        let modalRenderer, modalScene, modalCamera, modalMesh, modalAnimId;
 
-        function openModal(title, desc, tag) {
+        function openModal(title, desc, tag, id) {
             modalTitle.textContent = title;
             modalDesc.textContent = desc;
             modalTag.textContent = tag;
             modal.classList.add('active');
+            initModal3D(id);
         }
 
-        function closeModalForce() {
-            modal.classList.remove('active');
-        }
+        function closeModalForce() { modal.classList.remove('active'); cancelAnimationFrame(modalAnimId); }
+        function closeModal(e) { if (e.target === modal) closeModalForce(); }
 
-        function closeModal(event) {
-            if (event.target === modal) {
-                modal.classList.remove('active');
+        function initModal3D(id) {
+            const container = document.getElementById('modal-3d-container');
+            container.innerHTML = '';
+            modalScene = new THREE.Scene();
+            modalCamera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+            modalRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            modalRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(modalRenderer.domElement);
+
+            let objGeometry;
+            if (id === 'g1') objGeometry = new THREE.TorusKnotGeometry(1, 0.3, 64, 16);
+            else if (id === 'g2') objGeometry = new THREE.ConeGeometry(1.2, 2, 8);
+            else if (id === 'g3') objGeometry = new THREE.OctahedronGeometry(1.5);
+            else if (id === 'g4') objGeometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+            else if (id === 'g5') objGeometry = new THREE.SphereGeometry(1.2, 16, 16);
+            else objGeometry = new THREE.CylinderGeometry(0.8, 1.2, 2, 16);
+
+            const mat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, wireframe: true, roughness: 0.3 });
+            modalMesh = new THREE.Mesh(objGeometry, mat);
+            modalScene.add(modalMesh);
+
+            const light = new THREE.PointLight(0xffffff, 2, 50);
+            light.position.set(3, 3, 3);
+            modalScene.add(light);
+            modalScene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            modalCamera.position.z = 4;
+
+            function renderModal() {
+                modalAnimId = requestAnimationFrame(renderModal);
+                modalMesh.rotation.y += 0.01;
+                modalMesh.rotation.x += 0.005;
+                modalRenderer.render(modalScene, modalCamera);
             }
+            renderModal();
         }
 
-        /* 6. EFECTO TILT 3D EN TARJETAS DE GALERÍA */
-        const galleryCards = document.querySelectorAll('.card-3d');
-
-        galleryCards.forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-
-                const rotateX = -((y - centerY) / centerY) * 12;
-                const rotateY = ((x - centerX) / centerX) * 12;
-
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
-                card.style.borderColor = 'var(--cursor-color)';
-                card.style.boxShadow = '0 15px 35px var(--glow-color)';
-            });
-
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
-                card.style.borderColor = 'var(--glass-border)';
-                card.style.boxShadow = 'none';
-            });
-        });
-
-        /* 7. GENERADOR DE ARTE PROCEDURAL PARA CADA TARJETA */
+        /* GENERADOR DE ARTE EN TARJETAS */
         document.querySelectorAll('.preview-canvas').forEach((canvasEl) => {
             const ctx = canvasEl.getContext('2d');
             canvasEl.width = canvasEl.parentElement.clientWidth;
             canvasEl.height = canvasEl.parentElement.clientHeight;
-            
             const artType = canvasEl.getAttribute('data-art');
             let step = 0;
 
             function drawArt() {
-                step += 0.02;
-                ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-                
+                step += 0.02; ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
                 if (artType === 'fluids') {
                     for(let i = 0; i < 5; i++) {
-                        ctx.beginPath();
-                        ctx.lineWidth = 3;
-                        ctx.strokeStyle = i % 2 === 0 ? '#38bdf8' : '#c084fc';
+                        ctx.beginPath(); ctx.lineWidth = 3; ctx.strokeStyle = i % 2 === 0 ? '#38bdf8' : '#c084fc';
                         for(let x = 0; x < canvasEl.width; x += 10) {
-                            let y = canvasEl.height / 2 + Math.sin(x * 0.02 + step + i) * 30 * Math.cos(step * 0.5);
-                            if(x === 0) ctx.moveTo(x, y);
-                            else ctx.lineTo(x, y);
+                            let y = canvasEl.height / 2 + Math.sin(x * 0.02 + step + i) * 30;
+                            if(x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
                         }
                         ctx.stroke();
                     }
                 } else if (artType === 'flora') {
-                    ctx.save();
-                    ctx.translate(canvasEl.width / 2, canvasEl.height / 2);
+                    ctx.save(); ctx.translate(canvasEl.width / 2, canvasEl.height / 2);
                     for(let i = 0; i < 8; i++) {
-                        ctx.rotate(Math.PI / 4);
-                        ctx.beginPath();
-                        ctx.fillStyle = 'rgba(52, 211, 153, 0.25)';
-                        ctx.ellipse(0, 20 + Math.sin(step)*10, 15, 40, 0, 0, Math.PI * 2);
-                        ctx.fill();
+                        ctx.rotate(Math.PI / 4); ctx.beginPath(); ctx.fillStyle = 'rgba(52, 211, 153, 0.25)';
+                        ctx.ellipse(0, 20 + Math.sin(step)*10, 15, 40, 0, 0, Math.PI * 2); ctx.fill();
                     }
                     ctx.restore();
                 } else if (artType === 'spectra') {
-                    ctx.save();
-                    ctx.translate(canvasEl.width / 2, canvasEl.height / 2);
+                    ctx.save(); ctx.translate(canvasEl.width / 2, canvasEl.height / 2);
                     for(let i = 1; i <= 4; i++) {
-                        ctx.beginPath();
-                        ctx.lineWidth = 2;
-                        ctx.strokeStyle = i % 2 === 0 ? '#f472b6' : '#38bdf8';
-                        ctx.arc(0, 0, i * 25 + Math.sin(step + i) * 8, 0, Math.PI * 2);
-                        ctx.stroke();
+                        ctx.beginPath(); ctx.lineWidth = 2; ctx.strokeStyle = i % 2 === 0 ? '#f472b6' : '#38bdf8';
+                        ctx.arc(0, 0, i * 25 + Math.sin(step + i) * 8, 0, Math.PI * 2); ctx.stroke();
                     }
                     ctx.restore();
                 } else if (artType === 'voxels') {
@@ -792,24 +429,13 @@
                         }
                     }
                 } else if (artType === 'quantum') {
-                    ctx.beginPath();
-                    ctx.arc(canvasEl.width / 2, canvasEl.height / 2, Math.abs(Math.sin(step)) * 70, 0, Math.PI * 2);
-                    ctx.strokeStyle = '#34d399';
-                    ctx.lineWidth = 4;
-                    ctx.stroke();
+                    ctx.beginPath(); ctx.arc(canvasEl.width / 2, canvasEl.height / 2, Math.abs(Math.sin(step)) * 70, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#34d399'; ctx.lineWidth = 4; ctx.stroke();
                 } else if (artType === 'fractal') {
-                    ctx.save();
-                    ctx.translate(canvasEl.width / 2, canvasEl.height / 2);
-                    ctx.rotate(step * 0.5);
-                    ctx.fillStyle = 'rgba(168, 85, 247, 0.4)';
-                    ctx.fillRect(-30, -30, 60, 60);
-                    ctx.rotate(-step);
-                    ctx.strokeStyle = '#38bdf8';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(-45, -45, 90, 90);
+                    ctx.save(); ctx.translate(canvasEl.width / 2, canvasEl.height / 2); ctx.rotate(step * 0.5);
+                    ctx.fillStyle = 'rgba(168, 85, 247, 0.4)'; ctx.fillRect(-30, -30, 60, 60);
                     ctx.restore();
                 }
-
                 requestAnimationFrame(drawArt);
             }
             drawArt();
