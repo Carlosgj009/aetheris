@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="es" data-theme="aurora">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AETHERIS // Digital Artist & Creative Developer</title>
-    <!-- Three.js para el objeto 3D interecativo -->
+    <!-- Three.js para la escultura interactiva -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         /* RESET & BASE */
@@ -13,10 +13,11 @@
             padding: 0;
             box-sizing: border-box;
             scroll-behavior: smooth;
-            cursor: none; /* Oculta el cursor nativo para usar el personalizado */
+            cursor: none;
         }
 
-        :root {
+        /* PALETAS DE TEMAS Y COLORES */
+        :root[data-theme="aurora"] {
             --bg-main: #080911;
             --text-main: #f1f5f9;
             --text-muted: #94a3b8;
@@ -24,16 +25,52 @@
             --glass-border: rgba(255, 255, 255, 0.08);
             --card-inner: rgba(10, 13, 24, 0.6);
             --cursor-color: #38bdf8;
+            --accent-gradient: linear-gradient(90deg, #38bdf8, #c084fc, #f472b6);
+            --blob-1: #a855f7;
+            --blob-2: #38bdf8;
+            --blob-3: #f472b6;
         }
 
-        [data-theme="light"] {
-            --bg-main: #f8fafc;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --glass-bg: rgba(255, 255, 255, 0.65);
-            --glass-border: rgba(0, 0, 0, 0.08);
-            --card-inner: rgba(255, 255, 255, 0.85);
-            --cursor-color: #6366f1;
+        :root[data-theme="cyberpunk"] {
+            --bg-main: #050505;
+            --text-main: #0fff50;
+            --text-muted: #a0a0a0;
+            --glass-bg: rgba(20, 10, 20, 0.65);
+            --glass-border: rgba(255, 0, 85, 0.2);
+            --card-inner: rgba(10, 5, 10, 0.8);
+            --cursor-color: #ff0055;
+            --accent-gradient: linear-gradient(90deg, #ff0055, #ffe600, #0fff50);
+            --blob-1: #ff0055;
+            --blob-2: #ffe600;
+            --blob-3: #0fff50;
+        }
+
+        :root[data-theme="solar"] {
+            --bg-main: #fffaf0;
+            --text-main: #2d1502;
+            --text-muted: #7c5a3c;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(249, 115, 22, 0.2);
+            --card-inner: rgba(255, 243, 230, 0.8);
+            --cursor-color: #f97316;
+            --accent-gradient: linear-gradient(90deg, #f97316, #eab308, #ec4899);
+            --blob-1: #f97316;
+            --blob-2: #fb923c;
+            --blob-3: #fde047;
+        }
+
+        :root[data-theme="emerald"] {
+            --bg-main: #022c22;
+            --text-main: #ecfdf5;
+            --text-muted: #6ee7b7;
+            --glass-bg: rgba(6, 78, 59, 0.35);
+            --glass-border: rgba(52, 211, 153, 0.15);
+            --card-inner: rgba(2, 44, 34, 0.6);
+            --cursor-color: #34d399;
+            --accent-gradient: linear-gradient(90deg, #34d399, #38bdf8, #818cf8);
+            --blob-1: #059669;
+            --blob-2: #10b981;
+            --blob-3: #34d399;
         }
 
         body {
@@ -43,7 +80,7 @@
             min-height: 100vh;
             overflow-x: hidden;
             line-height: 1.6;
-            transition: background-color 0.4s, color 0.4s;
+            transition: background-color 0.5s, color 0.5s;
         }
 
         /* CURSOR PERSONALIZADO */
@@ -57,7 +94,7 @@
             border-radius: 50%;
             pointer-events: none;
             transform: translate(-50%, -50%);
-            transition: width 0.2s, height: 0.2s, background-color 0.2s;
+            transition: width 0.2s, height: 0.2s, background-color 0.2s, border-color 0.3s;
             z-index: 9999;
         }
 
@@ -72,9 +109,10 @@
             pointer-events: none;
             transform: translate(-50%, -50%);
             z-index: 10000;
+            transition: background-color 0.3s;
         }
 
-        /* AURORA BACKGROUND */
+        /* FONDO DINÁMICO */
         .aurora-bg {
             position: fixed;
             top: 0;
@@ -82,15 +120,17 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            filter: blur(120px);
-            opacity: 0.55;
+            filter: blur(130px);
+            opacity: 0.5;
             pointer-events: none;
+            transition: opacity 0.5s;
         }
 
         .blob {
             position: absolute;
             border-radius: 50%;
             animation: float 18s ease-in-out infinite alternate;
+            transition: background 0.5s;
         }
 
         .blob-1 {
@@ -98,7 +138,7 @@
             left: -10%;
             width: 50vw;
             height: 50vw;
-            background: radial-gradient(circle, #a855f7 0%, transparent 70%);
+            background: radial-gradient(circle, var(--blob-1) 0%, transparent 70%);
         }
 
         .blob-2 {
@@ -106,7 +146,7 @@
             right: -10%;
             width: 55vw;
             height: 55vw;
-            background: radial-gradient(circle, #38bdf8 0%, transparent 70%);
+            background: radial-gradient(circle, var(--blob-2) 0%, transparent 70%);
             animation-delay: -5s;
         }
 
@@ -115,7 +155,7 @@
             left: 30%;
             width: 40vw;
             height: 40vw;
-            background: radial-gradient(circle, #f472b6 0%, transparent 70%);
+            background: radial-gradient(circle, var(--blob-3) 0%, transparent 70%);
             animation-delay: -10s;
         }
 
@@ -125,7 +165,7 @@
             100% { transform: translate(-30px, 50px) scale(0.95); }
         }
 
-        /* CONTAINER & GLASS UI */
+        /* CONTENEDORES Y GLASSMORPHISM */
         .container {
             max-width: 1100px;
             margin: 0 auto;
@@ -140,11 +180,11 @@
             border-radius: 20px;
             padding: 35px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             transition: background 0.4s, border 0.4s;
         }
 
-        /* NAVIGATION & CONTROLS */
+        /* NAVEGACIÓN Y SELECTOR DE TEMAS */
         nav {
             display: flex;
             justify-content: space-between;
@@ -159,7 +199,7 @@
             font-size: 1.4rem;
             font-weight: 800;
             letter-spacing: 2px;
-            background: linear-gradient(90deg, #38bdf8, #c084fc, #f472b6);
+            background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-decoration: none;
@@ -168,7 +208,7 @@
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 20px;
         }
 
         .nav-links {
@@ -184,25 +224,38 @@
         }
 
         .nav-links a:hover {
-            color: #38bdf8;
+            color: var(--cursor-color);
         }
 
-        .theme-toggle {
-            background: var(--glass-border);
-            border: 1px solid var(--glass-border);
-            color: var(--text-main);
-            padding: 8px 14px;
+        /* Selector de temas integrado */
+        .theme-selector {
+            display: flex;
+            gap: 6px;
+            background: var(--card-inner);
+            padding: 4px;
             border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .theme-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
             cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
         }
 
-        .theme-toggle:hover {
-            border-color: #38bdf8;
+        .theme-dot:hover {
+            transform: scale(1.2);
         }
 
-        /* HERO SECTION */
+        .dot-aurora { background: #38bdf8; }
+        .dot-cyberpunk { background: #ff0055; }
+        .dot-solar { background: #f97316; }
+        .dot-emerald { background: #34d399; }
+
+        /* SECCIÓN HERO */
         .hero {
             text-align: center;
             padding: 60px 20px;
@@ -225,12 +278,12 @@
         .cta-btn {
             display: inline-block;
             padding: 14px 32px;
-            background: linear-gradient(90deg, #a855f7, #f472b6);
+            background: var(--accent-gradient);
             color: #fff;
             text-decoration: none;
             font-weight: 600;
             border-radius: 30px;
-            box-shadow: 0 0 25px rgba(168, 85, 247, 0.4);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
             transition: transform 0.3s, box-shadow 0.3s;
             border: none;
             cursor: pointer;
@@ -238,30 +291,35 @@
 
         .cta-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 0 35px rgba(244, 114, 182, 0.6);
+            box-shadow: 0 0 35px rgba(168, 85, 247, 0.5);
         }
 
-        /* OBJETO 3D INTERACTIVO (CANVAS CONTAINER) */
-        .object-3d-box {
+        /* BLOQUE INTERACTIVO VISUAL (ESCULTURA 3D INTEGRADA) */
+        .interactive-showcase {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            align-items: center;
+        }
+
+        @media(max-width: 768px) {
+            .interactive-showcase { grid-template-columns: 1fr; }
+        }
+
+        .canvas-wrapper {
             width: 100%;
-            height: 350px;
+            height: 300px;
             background: var(--card-inner);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
             position: relative;
             overflow: hidden;
-            margin-top: 15px;
             cursor: grab;
         }
-        .object-3d-box:active {
-            cursor: grabbing;
-        }
-        .canvas-container {
-            width: 100%;
-            height: 100%;
-        }
+        .canvas-wrapper:active { cursor: grabbing; }
+        .canvas-container { width: 100%; height: 100%; }
 
-        /* METRICS / STATS */
+        /* MÉTRICAS */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -280,7 +338,7 @@
         .stat-number {
             font-size: 2.2rem;
             font-weight: 800;
-            color: #38bdf8;
+            color: var(--cursor-color);
             display: block;
         }
 
@@ -291,20 +349,19 @@
             letter-spacing: 1px;
         }
 
-        /* MINIJUEGO: ATRAPA EL ORBE */
+        /* MINIJUEGO INTEGRADO */
         .game-box {
             background: var(--card-inner);
-            border: 1px solid rgba(56, 189, 248, 0.3);
+            border: 1px solid var(--glass-border);
             border-radius: 16px;
             padding: 20px;
             text-align: center;
             position: relative;
-            height: 320px;
+            height: 300px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
-            margin-top: 15px;
         }
 
         .game-stats {
@@ -312,7 +369,7 @@
             justify-content: space-around;
             font-size: 1.1rem;
             font-weight: 700;
-            color: #38bdf8;
+            color: var(--cursor-color);
             z-index: 2;
         }
 
@@ -321,20 +378,22 @@
             flex-grow: 1;
             margin-top: 10px;
             border-radius: 12px;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.15);
         }
 
         #target-orb {
             position: absolute;
-            width: 50px;
-            height: 50px;
-            background: radial-gradient(circle, #38bdf8 0%, #a855f7 100%);
+            width: 45px;
+            height: 45px;
+            background: var(--accent-gradient);
             border-radius: 50%;
             cursor: pointer;
             display: none;
-            box-shadow: 0 0 20px #38bdf8;
+            box-shadow: 0 0 20px var(--cursor-color);
             transition: transform 0.1s;
         }
+
+        #target-orb:active { transform: scale(0.85); }
 
         .game-msg {
             position: absolute;
@@ -342,23 +401,30 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: var(--text-main);
-            font-size: 1.1rem;
+            font-size: 1rem;
             z-index: 3;
             text-align: center;
             width: 100%;
         }
 
-        /* FILTER BUTTONS */
+        /* FILTROS Y PROYECTOS */
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
         .filter-container {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 25px;
             flex-wrap: wrap;
         }
 
         .filter-btn {
-            background: var(--glass-border);
+            background: var(--card-inner);
             border: 1px solid var(--glass-border);
             color: var(--text-muted);
             padding: 8px 18px;
@@ -369,17 +435,9 @@
         }
 
         .filter-btn.active, .filter-btn:hover {
-            background: rgba(192, 132, 252, 0.2);
-            color: #c084fc;
-            border-color: #c084fc;
-        }
-
-        /* PORTFOLIO GRID & ROLL 3D EFFECT */
-        .section-title {
-            font-size: 1.8rem;
-            margin-bottom: 25px;
-            letter-spacing: 1px;
-            text-align: center;
+            background: var(--glass-border);
+            color: var(--cursor-color);
+            border-color: var(--cursor-color);
         }
 
         .grid {
@@ -394,38 +452,28 @@
             border: 1px solid var(--glass-border);
             border-radius: 14px;
             padding: 20px;
-            transition: transform 0.1s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.1s ease, border-color 0.3s ease;
             transform-style: preserve-3d;
-            will-change: transform;
         }
 
-        .art-item.hide {
-            display: none;
-        }
+        .art-item.hide { display: none; }
 
         .art-tag {
             display: inline-block;
             font-size: 0.75rem;
             font-weight: 700;
             padding: 4px 10px;
-            background: rgba(192, 132, 252, 0.15);
-            color: #c084fc;
+            background: var(--glass-border);
+            color: var(--cursor-color);
             border-radius: 20px;
             margin-bottom: 12px;
             text-transform: uppercase;
         }
 
-        .art-item h3 {
-            font-size: 1.25rem;
-            margin-bottom: 8px;
-        }
+        .art-item h3 { font-size: 1.25rem; margin-bottom: 8px; }
+        .art-item p { font-size: 0.9rem; color: var(--text-muted); }
 
-        .art-item p {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        /* TESTIMONIALS */
+        /* TESTIMONIOS */
         .testimonials-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -448,11 +496,11 @@
             margin-top: 15px;
             font-weight: 700;
             font-style: normal;
-            color: #38bdf8;
+            color: var(--cursor-color);
             font-size: 0.85rem;
         }
 
-        /* FORM */
+        /* CONTACTO */
         .contact-form {
             display: flex;
             flex-direction: column;
@@ -475,17 +523,17 @@
         }
 
         .form-group input:focus, .form-group textarea:focus {
-            border-color: #38bdf8;
+            border-color: var(--cursor-color);
         }
 
         .email-display {
             display: inline-block;
             margin-top: 15px;
             padding: 8px 18px;
-            background: rgba(56, 189, 248, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.3);
+            background: var(--glass-border);
+            border: 1px solid var(--glass-border);
             border-radius: 20px;
-            color: #38bdf8;
+            color: var(--cursor-color);
             font-family: monospace;
             font-size: 0.95rem;
         }
@@ -511,30 +559,34 @@
     </div>
 
     <div class="container">
-        <!-- NAVIGATION -->
+        <!-- NAVEGACIÓN Y SELECTOR DE COLOR -->
         <nav class="glass-card">
             <a href="#" class="logo">AETHERIS</a>
             <div class="nav-right">
                 <div class="nav-links">
                     <a href="galeria.html">Galería</a>
-                    <a href="#objeto3d">Objeto 3D</a>
-                    <a href="#juego">Minijuego</a>
-                    <a href="#obras">Proyectos</a>
+                    <a href="#proyectos">Proyectos</a>
                     <a href="#contacto">Contacto</a>
                 </div>
-                <button class="theme-toggle" id="theme-btn">Cambiar Tema</button>
+                <!-- Selector de temas de colores -->
+                <div class="theme-selector" title="Cambiar paleta de colores">
+                    <div class="theme-dot dot-aurora" onclick="setTheme('aurora')"></div>
+                    <div class="theme-dot dot-cyberpunk" onclick="setTheme('cyberpunk')"></div>
+                    <div class="theme-dot dot-solar" onclick="setTheme('solar')"></div>
+                    <div class="theme-dot dot-emerald" onclick="setTheme('emerald')"></div>
+                </div>
             </div>
         </nav>
 
-        <!-- HERO SECTION -->
+        <!-- SECCIÓN PRINCIPAL HERO -->
         <section class="glass-card hero">
-            <span class="art-tag">Arte Generativo & 3D</span>
-            <h1>Explorando la frontera entre la luz y el código</h1>
-            <p>Portfolio interactivo de arte digital, esculturas virtuales y entornos inmersivos.</p>
+            <span class="art-tag">Arte Generativo & Código Creativo</span>
+            <h1>Explorando la frontera entre la luz y la geometría</h1>
+            <p>Portfolio interactivo de arte digital, esculturas virtuales y experiencias inmersivas integradas.</p>
             <a href="galeria.html" class="cta-btn">Ver Galería Completa</a>
         </section>
 
-        <!-- STATS SECTION -->
+        <!-- MÉTRICAS -->
         <div class="stats-grid">
             <div class="stat-card glass-card">
                 <span class="stat-number">40+</span>
@@ -550,35 +602,40 @@
             </div>
         </div>
 
-        <!-- OBJETO 3D INTERACTIVO ROTABLE -->
-        <section id="objeto3d" class="glass-card">
-            <h2 class="section-title">Escultura 3D Interactiva</h2>
-            <p style="color: var(--text-muted); text-align: center; margin-bottom: 10px;">Haz clic y arrastra con el ratón para rotar libremente el objeto en tiempo real.</p>
-            <div class="object-3d-box">
-                <div id="canvas-3d" class="canvas-container"></div>
-            </div>
-        </section>
-
-        <!-- MINIJUEGO: ATRAPA EL ORBE -->
-        <section id="juego" class="glass-card">
-            <h2 class="section-title">Minijuego: Atrapa el Orbe Neón</h2>
-            <div class="game-box">
-                <div class="game-stats">
-                    <div>Puntuación: <span id="game-score">0</span></div>
-                    <div>Tiempo: <span id="game-time">10</span>s</div>
-                </div>
-                <div class="game-area" id="game-area">
-                    <div id="game-msg" class="game-msg">
-                        <p style="margin-bottom: 15px;">Atrapa tantos orbes como puedas en 10 segundos.</p>
-                        <button id="start-game-btn" class="cta-btn" style="padding: 10px 24px; font-size: 0.9rem;">Iniciar Juego</button>
+        <!-- SECCIÓN INTERACTIVA INTEGRADA (ESCULTURA 3D + DINÁMICA DE DESTREZA) -->
+        <div class="glass-card">
+            <h2 class="section-title">Experiencias Interactivas</h2>
+            <div class="interactive-showcase">
+                <!-- Objeto 3D rotable -->
+                <div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px;">Escultura Tridimensional</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">Haz clic y arrastra para rotar libremente la estructura en tiempo real.</p>
+                    <div class="canvas-wrapper">
+                        <div id="canvas-3d" class="canvas-container"></div>
                     </div>
-                    <div id="target-orb"></div>
+                </div>
+                <!-- Minijuego integrado -->
+                <div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px;">Reflejos Neón</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">Atrapa la mayor cantidad de esferas luminosas antes de que acabe el tiempo.</p>
+                    <div class="game-box">
+                        <div class="game-stats">
+                            <div>Puntos: <span id="game-score">0</span></div>
+                            <div>Tiempo: <span id="game-time">10</span>s</div>
+                        </div>
+                        <div class="game-area" id="game-area">
+                            <div id="game-msg" class="game-msg">
+                                <button id="start-game-btn" class="cta-btn" style="padding: 8px 20px; font-size: 0.85rem;">Iniciar Reto</button>
+                            </div>
+                            <div id="target-orb"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- PORTFOLIO WITH INTERACTIVE FILTERS & 3D ROLL -->
-        <section id="obras" class="glass-card">
+        <!-- PORTAFOLIO DE PROYECTOS -->
+        <section id="proyectos" class="glass-card">
             <h2 class="section-title">Colecciones Seleccionadas</h2>
             
             <div class="filter-container">
@@ -602,7 +659,7 @@
                 <div class="art-item 3d card-3d">
                     <span class="art-tag">Escultura Digital</span>
                     <h3>03. Aura Spectra</h3>
-                    <p>Estructuras geométricas traslúcidas con iluminación estilo Aurora UI.</p>
+                    <p>Estructuras geométricas traslúcidas con iluminación dinámica.</p>
                 </div>
                 <div class="art-item vr card-3d">
                     <span class="art-tag">Realidad Virtual</span>
@@ -612,8 +669,8 @@
             </div>
         </section>
 
-        <!-- TESTIMONIALS SECTION -->
-        <section id="testimonios" class="glass-card">
+        <!-- TESTIMONIOS -->
+        <section class="glass-card">
             <h2 class="section-title">Colaboraciones & Opiniones</h2>
             <div class="testimonials-grid">
                 <div class="testimonial-card">
@@ -621,13 +678,13 @@
                     <span class="client-name">— Director de Arte, Nexus Studio</span>
                 </div>
                 <div class="testimonial-card">
-                    "La estética Aurora e integración de iluminación en 3D superó las expectativas del cliente."
+                    "La estética y la integración de elementos visuales tridimensionales superaron las expectativas."
                     <span class="client-name">— Comisaria de Galería Virtual</span>
                 </div>
             </div>
         </section>
 
-        <!-- CONTACT SECTION -->
+        <!-- CONTACTO -->
         <section id="contacto" class="glass-card" style="text-align: center;">
             <h2 class="section-title">¿Tienes un proyecto en mente?</h2>
             <p style="color: var(--text-muted);">Disponible para encargos, dirección de arte digital y colaboraciones.</p>
@@ -645,7 +702,7 @@
                     <textarea name="message" rows="4" placeholder="Describe tu idea o consulta..." required></textarea>
                 </div>
                 <div style="text-align: center; margin-top: 10px;">
-                    <button type="submit" class="cta-btn" style="background: linear-gradient(90deg, #38bdf8, #a855f7);">
+                    <button type="submit" class="cta-btn">
                         Enviar Mensaje por Gmail
                     </button>
                 </div>
@@ -657,7 +714,7 @@
         </footer>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT GLOBAL -->
     <script>
         /* 1. CURSOR PERSONALIZADO */
         const cursor = document.getElementById('cursor');
@@ -670,11 +727,10 @@
             cursorDot.style.top = e.clientY + 'px';
         });
 
-        // Efecto hover para elementos interactivos
-        document.querySelectorAll('a, button, .art-item, input, textarea').forEach(el => {
+        document.querySelectorAll('a, button, .art-item, input, textarea, .theme-dot').forEach(el => {
             el.addEventListener('mouseenter', () => {
                 cursor.style.transform = 'translate(-50%, -50%) scale(1.6)';
-                cursor.style.backgroundColor = 'rgba(56, 189, 248, 0.1)';
+                cursor.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
             });
             el.addEventListener('mouseleave', () => {
                 cursor.style.transform = 'translate(-50%, -50%) scale(1)';
@@ -682,18 +738,19 @@
             });
         });
 
-        /* 2. CAMBIO DE TEMA (CLARO / OSCURO) */
-        const themeBtn = document.getElementById('theme-btn');
-        const htmlElement = document.documentElement;
+        /* 2. CAMBIO DE PALETA DE COLORES */
+        function setTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('aetheris-theme', themeName);
+        }
 
-        themeBtn.addEventListener('click', () => {
-            const currentTheme = htmlElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            htmlElement.setAttribute('data-theme', newTheme);
-            themeBtn.textContent = newTheme === 'dark' ? 'Cambiar a Tema Claro' : 'Cambiar a Tema Oscuro';
-        });
+        // Cargar tema guardado previamente si existe
+        const savedTheme = localStorage.getItem('aetheris-theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        }
 
-        /* 3. OBJETO 3D INTERACTIVO CON THREE.JS */
+        /* 3. ESCULTURA 3D INTERACTIVA (THREE.JS) */
         const container3D = document.getElementById('canvas-3d');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(60, container3D.clientWidth / container3D.clientHeight, 0.1, 1000);
@@ -702,28 +759,25 @@
         renderer.setSize(container3D.clientWidth, container3D.clientHeight);
         container3D.appendChild(renderer.domElement);
 
-        // Crear una geometría 3D abstracta (Toroide / Anudo o Icosaedro estilizado)
-        const geometry = new THREE.IcosahedronGeometry(2, 0);
+        const geometry = new THREE.IcosahedronGeometry(1.8, 0);
         const material = new THREE.MeshStandardMaterial({
             color: 0x38bdf8,
             wireframe: true,
-            roughness: 0.3,
+            roughness: 0.2,
             metalness: 0.8
         });
         const mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
 
-        // Iluminación
-        const light = new THREE.PointLight(0xa855f7, 3, 50);
+        const light = new THREE.PointLight(0xffffff, 2, 50);
         light.position.set(5, 5, 5);
         scene.add(light);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
         scene.add(ambientLight);
 
         camera.position.z = 5;
 
-        // Variables para control de rotación por ratón/tacto
         let isDragging = false;
         let previousMousePosition = { x: 0, y: 0 };
 
@@ -743,11 +797,8 @@
             previousMousePosition = { x: e.clientX, y: e.clientY };
         });
 
-        window.addEventListener('mouseup', () => {
-            isDragging = false;
-        });
+        window.addEventListener('mouseup', () => { isDragging = false; });
 
-        // Animación automática de giro sutil si no se interactúa
         function animate() {
             requestAnimationFrame(animate);
             if (!isDragging) {
@@ -758,14 +809,13 @@
         }
         animate();
 
-        // Ajustar tamaño del canvas al redimensionar ventana
         window.addEventListener('resize', () => {
             camera.aspect = container3D.clientWidth / container3D.clientHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(container3D.clientWidth, container3D.clientHeight);
         });
 
-        /* 4. FILTROS DE CATEGORÍAS */
+        /* 4. FILTROS DE PROYECTOS */
         function filterSelection(category) {
             const items = document.querySelectorAll('.art-item');
             const buttons = document.querySelectorAll('.filter-btn');
@@ -782,7 +832,7 @@
             });
         }
 
-        /* 5. MINIJUEGO: ATRAPA EL ORBE */
+        /* 5. MINIJUEGO INTEGRADO */
         const startBtn = document.getElementById('start-game-btn');
         const orb = document.getElementById('target-orb');
         const gameArea = document.getElementById('game-area');
@@ -796,8 +846,8 @@
         let isPlaying = false;
 
         function moveOrb() {
-            const maxX = gameArea.clientWidth - 50;
-            const maxY = gameArea.clientHeight - 50;
+            const maxX = gameArea.clientWidth - 45;
+            const maxY = gameArea.clientHeight - 45;
             const randomX = Math.floor(Math.random() * maxX);
             const randomY = Math.floor(Math.random() * maxY);
             orb.style.left = randomX + 'px';
@@ -823,47 +873,18 @@
                     isPlaying = false;
                     orb.style.display = 'none';
                     gameMsg.style.display = 'block';
-                    gameMsg.innerHTML = `<p style="margin-bottom: 10px; color: #38bdf8; font-weight: 700;">¡Tiempo terminado!</p><p style="margin-bottom: 15px; font-size: 0.95rem;">Puntuación final: ${score} orbes</p><button id="start-game-btn" class="cta-btn" style="padding: 8px 20px; font-size: 0.85rem;" onclick="restartGame()">Jugar de Nuevo</button>`;
+                    gameMsg.innerHTML = `<p style="margin-bottom: 8px; font-weight: 700;">¡Finalizado! Puntos: ${score}</p><button id="start-game-btn" class="cta-btn" style="padding: 6px 16px; font-size: 0.8rem;" onclick="restartGame()">Reintentar</button>`;
                 }
             }, 1000);
         });
 
-        function restartGame() {
-            startBtn.click();
-        }
+        function restartGame() { startBtn.click(); }
 
         orb.addEventListener('click', () => {
             if (!isPlaying) return;
             score++;
             gameScore.textContent = score;
             moveOrb();
-        });
-
-        /* 6. EFECTO ROLL / TILT 3D EN TARJETAS */
-        const cards3D = document.querySelectorAll('.card-3d');
-
-        cards3D.forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-
-                const rotateX = -((y - centerY) / centerY) * 12;
-                const rotateY = ((x - centerX) / centerX) * 12;
-
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
-                card.style.borderColor = 'rgba(192, 132, 252, 0.4)';
-                card.style.boxShadow = '0 15px 35px rgba(168, 85, 247, 0.2)';
-            });
-
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
-                card.style.borderColor = 'var(--glass-border)';
-                card.style.boxShadow = 'none';
-            });
         });
     </script>
 </body>
