@@ -4,510 +4,839 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AETHERIS // Digital Artist & Creative Developer</title>
-    
     <!-- Three.js para la escultura interactiva -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Matter.js para las físicas de gravedad cero -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-    
     <style>
         /* RESET & BASE */
-        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; cursor: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+            cursor: none;
+        }
 
         /* PALETAS DE TEMAS Y COLORES */
         :root[data-theme="aurora"] {
-            --bg-main: #080911; --text-main: #f1f5f9; --text-muted: #94a3b8;
-            --glass-bg: rgba(18, 22, 38, 0.45); --glass-border: rgba(255, 255, 255, 0.08);
-            --card-inner: rgba(10, 13, 24, 0.6); --cursor-color: #38bdf8;
+            --bg-main: #080911;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(18, 22, 38, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --card-inner: rgba(10, 13, 24, 0.6);
+            --cursor-color: #38bdf8;
             --accent-gradient: linear-gradient(90deg, #38bdf8, #c084fc, #f472b6);
-            --blob-1: #a855f7; --blob-2: #38bdf8; --blob-3: #f472b6;
+            --blob-1: #a855f7;
+            --blob-2: #38bdf8;
+            --blob-3: #f472b6;
+            --glow-color: rgba(56, 189, 248, 0.25);
         }
+
         :root[data-theme="cyberpunk"] {
-            --bg-main: #050505; --text-main: #0fff50; --text-muted: #a0a0a0;
-            --glass-bg: rgba(20, 10, 20, 0.65); --glass-border: rgba(255, 0, 85, 0.2);
-            --card-inner: rgba(10, 5, 10, 0.8); --cursor-color: #ff0055;
+            --bg-main: #050505;
+            --text-main: #0fff50;
+            --text-muted: #a0a0a0;
+            --glass-bg: rgba(20, 10, 20, 0.65);
+            --glass-border: rgba(255, 0, 85, 0.2);
+            --card-inner: rgba(10, 5, 10, 0.8);
+            --cursor-color: #ff0055;
             --accent-gradient: linear-gradient(90deg, #ff0055, #ffe600, #0fff50);
-            --blob-1: #ff0055; --blob-2: #ffe600; --blob-3: #0fff50;
+            --blob-1: #ff0055;
+            --blob-2: #ffe600;
+            --blob-3: #0fff50;
+            --glow-color: rgba(255, 0, 85, 0.3);
         }
+
         :root[data-theme="solar"] {
-            --bg-main: #fffaf0; --text-main: #2d1502; --text-muted: #7c5a3c;
-            --glass-bg: rgba(255, 255, 255, 0.75); --glass-border: rgba(249, 115, 22, 0.2);
-            --card-inner: rgba(255, 243, 230, 0.8); --cursor-color: #f97316;
+            --bg-main: #fffaf0;
+            --text-main: #2d1502;
+            --text-muted: #7c5a3c;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(249, 115, 22, 0.2);
+            --card-inner: rgba(255, 243, 230, 0.8);
+            --cursor-color: #f97316;
             --accent-gradient: linear-gradient(90deg, #f97316, #eab308, #ec4899);
-            --blob-1: #f97316; --blob-2: #fb923c; --blob-3: #fde047;
+            --blob-1: #f97316;
+            --blob-2: #fb923c;
+            --blob-3: #fde047;
+            --glow-color: rgba(249, 115, 22, 0.25);
         }
+
         :root[data-theme="emerald"] {
-            --bg-main: #022c22; --text-main: #ecfdf5; --text-muted: #6ee7b7;
-            --glass-bg: rgba(6, 78, 59, 0.35); --glass-border: rgba(52, 211, 153, 0.15);
-            --card-inner: rgba(2, 44, 34, 0.6); --cursor-color: #34d399;
+            --bg-main: #022c22;
+            --text-main: #ecfdf5;
+            --text-muted: #6ee7b7;
+            --glass-bg: rgba(6, 78, 59, 0.35);
+            --glass-border: rgba(52, 211, 153, 0.15);
+            --card-inner: rgba(2, 44, 34, 0.6);
+            --cursor-color: #34d399;
             --accent-gradient: linear-gradient(90deg, #34d399, #38bdf8, #818cf8);
-            --blob-1: #059669; --blob-2: #10b981; --blob-3: #34d399;
+            --blob-1: #059669;
+            --blob-2: #10b981;
+            --blob-3: #34d399;
+            --glow-color: rgba(52, 211, 153, 0.3);
         }
 
         body {
-            background-color: var(--bg-main); color: var(--text-main);
-            font-family: system-ui, -apple-system, sans-serif;
-            min-height: 100vh; overflow-x: hidden; line-height: 1.6;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
             transition: background-color 0.5s, color 0.5s;
         }
 
-        /* CURSOR */
+        /* CURSOR PERSONALIZADO */
         .custom-cursor {
-            position: fixed; top: 0; left: 0; width: 20px; height: 20px;
-            border: 2px solid var(--cursor-color); border-radius: 50%;
-            pointer-events: none; transform: translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s, background-color 0.2s; z-index: 9999;
-        }
-        .custom-cursor-dot {
-            position: fixed; top: 0; left: 0; width: 4px; height: 4px;
-            background-color: var(--cursor-color); border-radius: 50%;
-            pointer-events: none; transform: translate(-50%, -50%); z-index: 10000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--cursor-color);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height: 0.2s, background-color 0.2s, border-color 0.3s;
+            z-index: 9999;
         }
 
-        /* FONDO DINÁMICO & FLASH DE LATIDO */
-        .aurora-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
-            filter: blur(130px); opacity: 0.5; pointer-events: none; transition: opacity 0.5s;
+        .custom-cursor-dot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 4px;
+            background-color: var(--cursor-color);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
         }
-        .blob { position: absolute; border-radius: 50%; animation: float 18s ease-in-out infinite alternate; }
+
+        /* FONDO DINÁMICO */
+        .aurora-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            filter: blur(130px);
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 18s ease-in-out infinite alternate;
+            transition: background 0.5s;
+        }
+
         .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--blob-1) 0%, transparent 70%); }
         .blob-2 { bottom: -10%; right: -10%; width: 55vw; height: 55vw; background: radial-gradient(circle, var(--blob-2) 0%, transparent 70%); animation-delay: -5s; }
         .blob-3 { top: 35%; left: 30%; width: 40vw; height: 40vw; background: radial-gradient(circle, var(--blob-3) 0%, transparent 70%); animation-delay: -10s; }
-        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-30px, 50px) scale(0.95); } }
 
-        #heartbeat-flash {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--cursor-color); opacity: 0;
-            pointer-events: none; transition: opacity 0.15s ease-out; z-index: -1;
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(40px, -60px) scale(1.1); }
+            100% { transform: translate(-30px, 50px) scale(0.95); }
         }
 
-        /* CONTENEDORES */
+        /* CONTENEDORES Y GLASSMORPHISM */
         .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
         .glass-card {
-            background: var(--glass-bg); border: 1px solid var(--glass-border);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px; padding: 35px; margin-bottom: 30px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 30px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            transition: background 0.4s, border 0.4s;
         }
 
-        /* UI NAVEGACIÓN Y BOTONES */
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 30px; position: sticky; top: 20px; z-index: 100; flex-wrap: wrap; gap: 15px; }
-        .logo { font-size: 1.4rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
-        .nav-right { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.95rem; margin-right: 10px; transition: color 0.3s; }
+        /* NAVEGACIÓN Y SELECTORES */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 30px;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.95rem; transition: color 0.3s; }
         .nav-links a:hover { color: var(--cursor-color); }
-        .ctrl-btn { background: var(--card-inner); border: 1px solid var(--glass-border); color: var(--cursor-color); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; }
-        .ctrl-btn:hover { background: var(--glass-border); }
-        .theme-selector { display: flex; gap: 6px; background: var(--card-inner); padding: 4px; border-radius: 20px; border: 1px solid var(--glass-border); }
-        .theme-dot { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; transition: transform 0.2s; }
+
+        .audio-btn, .lang-btn {
+            background: var(--card-inner);
+            border: 1px solid var(--glass-border);
+            color: var(--cursor-color);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .audio-btn:hover, .lang-btn:hover { background: var(--glass-border); }
+
+        .theme-selector {
+            display: flex;
+            gap: 6px;
+            background: var(--card-inner);
+            padding: 4px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .theme-dot { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .theme-dot:hover { transform: scale(1.2); }
+        .dot-aurora { background: #38bdf8; }
+        .dot-cyberpunk { background: #ff0055; }
+        .dot-solar { background: #f97316; }
+        .dot-emerald { background: #34d399; }
 
-        .cta-btn { padding: 14px 32px; background: var(--accent-gradient); color: #fff; border-radius: 30px; text-decoration: none; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 0 20px var(--glow-color); transition: transform 0.3s; }
-        .cta-btn:hover { transform: translateY(-3px); }
-
-        /* HERO & STATS */
+        /* SECCIÓN HERO */
         .hero { text-align: center; padding: 60px 20px; }
         .hero h1 { font-size: 3.2rem; font-weight: 800; line-height: 1.15; margin-bottom: 20px; }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); max-width: 650px; margin: 0 auto 35px auto; }
+
+        .cta-btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: var(--accent-gradient);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 30px;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 0 35px rgba(168, 85, 247, 0.5); }
+
+        /* INTERACTIVOS & SHOWCASE 3D */
+        .interactive-showcase { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: center; }
+        @media(max-width: 768px) { .interactive-showcase { grid-template-columns: 1fr; } }
+
+        .canvas-wrapper { width: 100%; height: 320px; background: var(--card-inner); border: 1px solid var(--glass-border); border-radius: 16px; position: relative; overflow: hidden; }
+        .canvas-container { width: 100%; height: 100%; cursor: grab; }
+        .canvas-container:active { cursor: grabbing; }
+
+        /* Controles flotantes sobre el canvas 3D */
+        .canvas-controls {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: rgba(8, 9, 17, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .shape-select-group { display: flex; gap: 4px; }
+        .shape-btn {
+            background: none;
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .shape-btn.active, .shape-btn:hover { background: var(--glass-border); color: var(--cursor-color); border-color: var(--cursor-color); }
+        .snapshot-btn {
+            background: var(--accent-gradient);
+            color: #fff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* MÉTRICAS */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; text-align: center; }
-        .stat-card { background: var(--card-inner); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; font-size: 2.2rem; font-weight: 800; color: var(--cursor-color); }
-        .stat-card span { display: block; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: normal; }
+        .stat-card { background: var(--card-inner); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; }
+        .stat-number { font-size: 2.2rem; font-weight: 800; color: var(--cursor-color); display: block; }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
-        /* EXPERIENCIAS (Ahora 3 columnas para incluir Latido) */
-        .interactive-showcase { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        
-        .canvas-wrapper, .game-box, .heart-box { background: var(--card-inner); border: 1px solid var(--glass-border); border-radius: 16px; height: 320px; position: relative; overflow: hidden; padding: 20px; }
-        .canvas-wrapper { padding: 0; }
-        .canvas-container { width: 100%; height: 100%; }
-        
-        .game-stats { display: flex; justify-content: space-around; font-weight: 700; color: var(--cursor-color); z-index: 2; }
-        .game-area { position: relative; height: 230px; margin-top: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; }
-        #target-orb { position: absolute; width: 40px; height: 40px; background: var(--accent-gradient); border-radius: 50%; display: none; cursor: pointer; }
-        
-        /* WIDGET HEARTBEAT */
-        .heart-box { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .heart-icon { font-size: 4rem; margin: 20px 0; cursor: pointer; user-select: none; transition: transform 0.1s; filter: drop-shadow(0 0 15px var(--glow-color)); }
-        .heart-icon:active { transform: scale(0.85); }
-        .bpm-display { font-size: 1.5rem; font-weight: bold; color: var(--cursor-color); font-family: monospace; }
+        /* MINIJUEGO */
+        .game-box { background: var(--card-inner); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; text-align: center; position: relative; height: 320px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+        .game-stats { display: flex; justify-content: space-around; font-size: 1.1rem; font-weight: 700; color: var(--cursor-color); z-index: 2; }
+        .game-area { position: relative; flex-grow: 1; margin-top: 10px; border-radius: 12px; background: rgba(0, 0, 0, 0.15); }
+        #target-orb { position: absolute; width: 45px; height: 45px; background: var(--accent-gradient); border-radius: 50%; cursor: pointer; display: none; box-shadow: 0 0 20px var(--cursor-color); transition: transform 0.1s; z-index: 5; }
+        #target-orb:active { transform: scale(0.85); }
+        .game-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-main); font-size: 1rem; z-index: 3; text-align: center; width: 100%; }
 
-        /* PROYECTOS & SÍNTESIS DE VOZ */
+        /* MURAL COLABORATIVO DE NOTAS */
+        .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .sticky-note {
+            background: var(--card-inner);
+            border: 1px solid var(--glass-border);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            position: relative;
+            min-height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: rotate(var(--rot, 0deg));
+            transition: transform 0.2s;
+        }
+        .sticky-note:hover { transform: rotate(0deg) scale(1.02); }
+        .note-author { font-size: 0.75rem; color: var(--cursor-color); font-weight: 700; margin-top: 8px; text-align: right; }
+        .note-form { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .note-form input { flex: 1; min-width: 140px; padding: 10px; background: var(--card-inner); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-main); font-size: 0.9rem; outline: none; }
+
+        /* PROYECTOS */
+        .section-title { font-size: 1.8rem; margin-bottom: 20px; letter-spacing: 1px; text-align: center; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .art-item { background: var(--card-inner); border: 1px solid var(--glass-border); border-radius: 14px; padding: 20px; position: relative; padding-bottom: 50px; }
-        .art-tag { font-size: 0.75rem; background: var(--glass-border); color: var(--cursor-color); padding: 4px 10px; border-radius: 20px; font-weight: 700; display: inline-block; margin-bottom: 10px; }
-        .art-item h3 { margin-bottom: 8px; }
+        .art-item { background: var(--card-inner); border: 1px solid var(--glass-border); border-radius: 14px; padding: 20px; transition: transform 0.1s ease, border-color 0.3s ease; position: relative; }
+        .art-tag { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; background: var(--glass-border); color: var(--cursor-color); border-radius: 20px; margin-bottom: 12px; text-transform: uppercase; }
+        .art-item h3 { font-size: 1.25rem; margin-bottom: 8px; }
         .art-item p { font-size: 0.9rem; color: var(--text-muted); }
-        
-        /* Botón de Texto a Voz (TTS) */
-        .tts-btn { position: absolute; bottom: 15px; right: 15px; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main); padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 5px; }
-        .tts-btn:hover { background: var(--cursor-color); color: #000; border-color: var(--cursor-color); }
 
-        footer { text-align: center; padding: 40px 0 20px 0; color: var(--text-muted); font-size: 0.9rem; display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        .zero-g-btn { background: transparent; border: 1px dashed var(--text-muted); color: var(--text-muted); padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-        .zero-g-btn:hover { border-color: var(--cursor-color); color: var(--cursor-color); background: var(--glass-border); }
+        .fav-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            color: var(--text-muted);
+        }
+        .fav-btn.active { color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.6); }
+        .fav-btn:hover { transform: scale(1.2); }
+
+        /* CONTACTO */
+        .contact-form { display: flex; flex-direction: column; gap: 15px; max-width: 600px; margin: 20px auto 0 auto; text-align: left; }
+        .form-group input, .form-group textarea { width: 100%; padding: 14px; background: var(--card-inner); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--text-main); font-size: 0.95rem; outline: none; transition: border-color 0.3s; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--cursor-color); }
+        .email-display { display: inline-block; margin-top: 15px; padding: 8px 18px; background: var(--glass-border); border: 1px solid var(--glass-border); border-radius: 20px; color: var(--cursor-color); font-family: monospace; font-size: 0.95rem; }
+        footer { text-align: center; padding: 40px 0 20px 0; color: var(--text-muted); font-size: 0.9rem; }
     </style>
 </head>
 <body>
+
     <div class="custom-cursor" id="cursor"></div>
     <div class="custom-cursor-dot" id="cursor-dot"></div>
 
     <div class="aurora-bg">
-        <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
     </div>
-    <div id="heartbeat-flash"></div> <!-- Destello de latido -->
 
     <div class="container">
         <!-- NAVEGACIÓN -->
         <nav class="glass-card">
             <a href="#" class="logo">AETHERIS</a>
             <div class="nav-right">
-                <div class="nav-links"><a href="#" data-i18n="nav_gallery">Galería</a><a href="#contacto" data-i18n="nav_contact">Contacto</a></div>
-                <button class="ctrl-btn" onclick="toggleLanguage()">🌐 <span id="lang-label">EN</span></button>
-                <div class="theme-selector">
-                    <div class="theme-dot" style="background:#38bdf8" onclick="setTheme('aurora')"></div>
-                    <div class="theme-dot" style="background:#ff0055" onclick="setTheme('cyberpunk')"></div>
-                    <div class="theme-dot" style="background:#f97316" onclick="setTheme('solar')"></div>
-                    <div class="theme-dot" style="background:#34d399" onclick="setTheme('emerald')"></div>
+                <div class="nav-links">
+                    <a href="galeria.html" data-i18n="nav_gallery">Galería 3D</a>
+                    <a href="#contacto" data-i18n="nav_contact">Contacto</a>
+                </div>
+                <!-- Control de Audio Ambiental con Analizador -->
+                <button class="audio-btn" id="audio-toggle" onclick="toggleAmbientAudio()" title="Activar/Desactivar sonido ambiental">
+                    🔇 <span data-i18n="audio_btn">Audio Amb.</span>
+                </button>
+                <!-- Conmutador de Idioma -->
+                <button class="lang-btn" onclick="toggleLanguage()" title="Cambiar Idioma / Change Language">
+                    🌐 <span id="lang-label">EN</span>
+                </button>
+                <!-- Selector de temas -->
+                <div class="theme-selector" title="Cambiar paleta de colores">
+                    <div class="theme-dot dot-aurora" onclick="setTheme('aurora')"></div>
+                    <div class="theme-dot dot-cyberpunk" onclick="setTheme('cyberpunk')"></div>
+                    <div class="theme-dot dot-solar" onclick="setTheme('solar')"></div>
+                    <div class="theme-dot dot-emerald" onclick="setTheme('emerald')"></div>
                 </div>
             </div>
         </nav>
 
         <!-- HERO -->
         <section class="glass-card hero">
-            <h1 data-i18n="hero_title">Ingeniería Creativa & Arte Digital</h1>
-            <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto 30px auto;" data-i18n="hero_desc">Explorando físicas de gravedad cero, biometría interactiva y entornos 3D.</p>
-            <a href="#proyectos" class="cta-btn" data-i18n="hero_cta">Ver Colección</a>
+            <span class="art-tag" data-i18n="hero_tag">Arte Generativo & Código Creativo</span>
+            <h1 data-i18n="hero_title">Explorando la frontera entre la luz y la geometría</h1>
+            <p data-i18n="hero_desc">Portfolio interactivo con audio ambiental, experiencias inmersivas y galerías dinámicas.</p>
+            <a href="galeria.html" class="cta-btn" data-i18n="hero_cta">Ver Galería Completa</a>
         </section>
 
-        <!-- EXPERIENCIAS AVANZADAS -->
+        <!-- MÉTRICAS -->
+        <div class="stats-grid">
+            <div class="stat-card glass-card"><span class="stat-number">40+</span><span class="stat-label" data-i18n="stat_1">Proyectos Digitales</span></div>
+            <div class="stat-card glass-card"><span class="stat-number">100%</span><span class="stat-label" data-i18n="stat_2">Arte Algorítmico</span></div>
+            <div class="stat-card glass-card"><span class="stat-number">2026</span><span class="stat-label" data-i18n="stat_3">Colección Actual</span></div>
+        </div>
+
+        <!-- EXPERIencias INTERACTIVAS -->
         <div class="glass-card">
-            <h2 style="margin-bottom: 20px; text-align: center;" data-i18n="exp_title">Laboratorio Interactivo</h2>
+            <h2 class="section-title" data-i18n="exp_title">Experiencias Interactivas</h2>
             <div class="interactive-showcase">
-                <!-- 1. Canvas 3D -->
-                <div class="canvas-wrapper">
-                    <div id="canvas-3d" class="canvas-container"></div>
-                </div>
-                
-                <!-- 2. Minijuego Neón -->
-                <div class="game-box">
-                    <div class="game-stats"><span>Puntos: <span id="game-score">0</span></span><span>Tiempo: <span id="game-time">10</span>s</span></div>
-                    <div class="game-area" id="game-area">
-                        <div id="game-msg" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; width:100%;">
-                            <button id="start-game-btn" class="cta-btn" style="padding: 6px 16px; font-size: 0.85rem;" data-i18n="game_start">Iniciar Reto</button>
+                <div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px;" data-i18n="sculpture_title">Escultura Tridimensional</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;" data-i18n="sculpture_desc">Haz clic y arrastra para rotar. Reacciona al audio.</p>
+                    <div class="canvas-wrapper">
+                        <div id="canvas-3d" class="canvas-container"></div>
+                        <div class="canvas-controls">
+                            <div class="shape-select-group">
+                                <button class="shape-btn active" onclick="changeShape('icosahedron', this)">Icosa</button>
+                                <button class="shape-btn" onclick="changeShape('torus', this)">Torus</button>
+                                <button class="shape-btn" onclick="changeShape('particles', this)">Partículas</button>
+                                <button class="shape-btn" onclick="changeShape('cube', this)">Cubo</button>
+                            </div>
+                            <button class="snapshot-btn" onclick="takeSnapshot()" data-i18n="snap_btn">📸 Captura</button>
                         </div>
-                        <div id="target-orb"></div>
                     </div>
                 </div>
-
-                <!-- 3. Sincronizador Cardíaco (NUEVO) -->
-                <div class="heart-box">
-                    <h3 data-i18n="bpm_title">Sincronizador Biométrico</h3>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;" data-i18n="bpm_desc">Haz clic rítmicamente para medir tus BPM y sincronizar el entorno.</p>
-                    <div class="heart-icon" onclick="tapHeartbeat()">❤️</div>
-                    <div class="bpm-display"><span id="bpm-val">--</span> BPM</div>
+                <div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px;" data-i18n="game_title">Reflejos Neón</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;" data-i18n="game_desc">Atrapa la mayor cantidad de esferas.</p>
+                    <div class="game-box">
+                        <div class="game-stats">
+                            <div data-i18n="game_score">Puntos: <span id="game-score">0</span></div>
+                            <div data-i18n="game_time">Tiempo: <span id="game-time">10</span>s</div>
+                        </div>
+                        <div class="game-area" id="game-area">
+                            <div id="game-msg" class="game-msg"><button id="start-game-btn" class="cta-btn" style="padding: 8px 20px; font-size: 0.85rem;" data-i18n="game_start">Iniciar Reto</button></div>
+                            <div id="target-orb"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- PROYECTOS CON SÍNTESIS DE VOZ (NUEVO) -->
+        <!-- MURAL COLABORATIVO DE NOTAS -->
+        <section class="glass-card">
+            <h2 class="section-title" data-i18n="notes_title">Mural de Visitantes</h2>
+            <p style="color: var(--text-muted); text-align: center; font-size: 0.9rem;" data-i18n="notes_desc">Deja un saludo o una nota rápida que se guardará en tu navegador.</p>
+            <form class="note-form" onsubmit="addNote(event)">
+                <input type="text" id="note-text" placeholder="Escribe tu mensaje..." required data-i18n-placeholder="note_placeholder">
+                <input type="text" id="note-author" placeholder="Tu nombre o alias" required style="max-width: 200px;" data-i18n-placeholder="author_placeholder">
+                <button type="submit" class="cta-btn" style="padding: 10px 20px; font-size: 0.9rem;" data-i18n="note_btn">Dejar Nota</button>
+            </form>
+            <div class="notes-grid" id="notes-container">
+                <!-- Las notas se cargan dinámicamente -->
+            </div>
+        </section>
+
+        <!-- PROYECTOS -->
         <section id="proyectos" class="glass-card">
-            <h2 style="margin-bottom: 20px; text-align: center;" data-i18n="proj_title">Galería con Asistencia IA</h2>
+            <h2 class="section-title" data-i18n="proj_title">Colecciones Seleccionadas</h2>
             <div class="grid">
                 <div class="art-item">
-                    <span class="art-tag">SIMULACIÓN</span>
-                    <h3>Neon Entropy</h3>
-                    <p>Simulación de fluidos luminosos y comportamiento de partículas en entornos caóticos.</p>
-                    <button class="tts-btn" onclick="readCardAloud(this)">🤖 <span data-i18n="tts_btn">Escuchar</span></button>
+                    <button class="fav-btn" onclick="toggleFavorite('p1', this)">♥</button>
+                    <span class="art-tag" data-i18n="tag_sim">Simulación 3D</span>
+                    <h3>01. Neon Entropy</h3>
+                    <p data-i18n="proj_1">Simulación de fluidos luminosos y comportamiento de partículas.</p>
                 </div>
                 <div class="art-item">
-                    <span class="art-tag">BIOLOGÍA</span>
-                    <h3>Cybernetic Flora</h3>
-                    <p>Estudio conceptual de botánica futurista generada por algoritmos de crecimiento fractal.</p>
-                    <button class="tts-btn" onclick="readCardAloud(this)">🤖 <span data-i18n="tts_btn">Escuchar</span></button>
+                    <button class="fav-btn" onclick="toggleFavorite('p2', this)">♥</button>
+                    <span class="art-tag" data-i18n="tag_bio">Biología Sintética</span>
+                    <h3>02. Cybernetic Flora</h3>
+                    <p data-i18n="proj_2">Estudio conceptual de botánica futurista generada por algoritmos.</p>
                 </div>
                 <div class="art-item">
-                    <span class="art-tag">ESCULTURA</span>
-                    <h3>Aura Spectra</h3>
-                    <p>Estructuras geométricas traslúcidas que reaccionan a estímulos sonoros del espectador.</p>
-                    <button class="tts-btn" onclick="readCardAloud(this)">🤖 <span data-i18n="tts_btn">Escuchar</span></button>
+                    <button class="fav-btn" onclick="toggleFavorite('p3', this)">♥</button>
+                    <span class="art-tag" data-i18n="tag_scu">Escultura Digital</span>
+                    <h3>03. Aura Spectra</h3>
+                    <p data-i18n="proj_3">Estructuras geométricas traslúcidas con iluminación dinámica.</p>
+                </div>
+                <div class="art-item">
+                    <button class="fav-btn" onclick="toggleFavorite('p4', this)">♥</button>
+                    <span class="art-tag" data-i18n="tag_vr">Realidad Virtual</span>
+                    <h3>04. Voxel Dreams</h3>
+                    <p data-i18n="proj_4">Entornos inmersivos diseñados para exposiciones en el metaverso.</p>
                 </div>
             </div>
         </section>
 
-        <footer>
-            <!-- Botón Oculto: Gravedad Cero -->
-            <button class="zero-g-btn" onclick="toggleZeroGravity()" id="zg-btn" data-i18n="zg_btn">🌌 Iniciar Gravedad Cero</button>
-            <p style="margin-top: 15px;">© 2026 Aetheris Studio. Todos los derechos reservados.</p>
-        </footer>
+        <!-- CONTACTO -->
+        <section id="contacto" class="glass-card" style="text-align: center;">
+            <h2 class="section-title" data-i18n="contact_title">¿Tienes un proyecto en mente?</h2>
+            <p style="color: var(--text-muted);" data-i18n="contact_desc">Disponible para encargos y dirección de arte digital.</p>
+            <div class="email-display">carlosgjponte69@gmail.com</div>
+            <form class="contact-form" onsubmit="event.preventDefault(); window.open('https://mail.google.com/mail/?view=cm&fs=1&to=carlosgjponte69@gmail.com&su=' + encodeURIComponent('Consulta de Portfolio de ' + this.name.value) + '&body=' + encodeURIComponent('Nombre: ' + this.name.value + '\nEmail: ' + this.email.value + '\n\nMensaje:\n' + this.message.value), '_blank');">
+                <div class="form-group"><input type="text" name="name" placeholder="Tu Nombre" required data-i18n-placeholder="form_name"></div>
+                <div class="form-group"><input type="email" name="email" placeholder="Tu Correo Electrónico" required data-i18n-placeholder="form_email"></div>
+                <div class="form-group"><textarea name="message" rows="4" placeholder="Describe tu idea..." required data-i18n-placeholder="form_msg"></textarea></div>
+                <div style="text-align: center; margin-top: 10px;"><button type="submit" class="cta-btn" data-i18n="form_submit">Enviar Mensaje por Gmail</button></div>
+            </form>
+        </section>
+
+        <footer><p>© 2026 Aetheris Studio. <span data-i18n="footer_rights">Todos los derechos reservados.</span></p></footer>
     </div>
 
-    <!-- SCRIPTS -->
+    <!-- JAVASCRIPT AVANZADO -->
     <script>
-        /* MULTI-IDIOMA */
+        /* DICCIONARIO MULTIDIOMA */
         const translations = {
             es: {
-                nav_gallery: "Galería", nav_contact: "Contacto",
-                hero_title: "Ingeniería Creativa & Arte Digital",
-                hero_desc: "Explorando físicas de gravedad cero, biometría interactiva y entornos 3D.",
-                hero_cta: "Ver Colección", exp_title: "Laboratorio Interactivo",
-                game_start: "Iniciar Reto", bpm_title: "Sincronizador Biométrico",
-                bpm_desc: "Haz clic rítmicamente en el corazón para medir tus BPM y sincronizar el entorno.",
-                proj_title: "Galería con Asistencia de Voz", tts_btn: "Escuchar",
-                zg_btn: "🌌 Iniciar Gravedad Cero", zg_btn_off: "❌ Detener Físicas"
+                nav_gallery: "Galería 3D", nav_contact: "Contacto", audio_btn: "Audio Amb.",
+                hero_tag: "Arte Generativo & Código Creativo",
+                hero_title: "Explorando la frontera entre la luz y la geometría",
+                hero_desc: "Portfolio interactivo con audio ambiental, experiencias inmersivas y galerías dinámicas.",
+                hero_cta: "Ver Galería Completa",
+                stat_1: "Proyectos Digitales", stat_2: "Arte Algorítmico", stat_3: "Colección Actual",
+                exp_title: "Experiencias Interactivas", sculpture_title: "Escultura Tridimensional",
+                sculpture_desc: "Haz clic y arrastra para rotar. Reacciona al audio.", snap_btn: "📸 Captura",
+                game_title: "Reflejos Neón", game_desc: "Atrapa la mayor cantidad de esferas.",
+                game_score: "Puntos: ", game_time: "Tiempo: ", game_start: "Iniciar Reto",
+                notes_title: "Mural de Visitantes", notes_desc: "Deja un saludo o una nota rápida que se guardará en tu navegador.",
+                note_placeholder: "Escribe tu mensaje...", author_placeholder: "Tu nombre o alias", note_btn: "Dejar Nota",
+                proj_title: "Colecciones Seleccionadas", tag_sim: "Simulación 3D", tag_bio: "Biología Sintética", tag_scu: "Escultura Digital", tag_vr: "Realidad Virtual",
+                proj_1: "Simulación de fluidos luminosos y comportamiento de partículas.",
+                proj_2: "Estudio conceptual de botánica futurista generada por algoritmos.",
+                proj_3: "Estructuras geométricas traslúcidas con iluminación dinámica.",
+                proj_4: "Entornos inmersivos diseñados para exposiciones en el metaverso.",
+                contact_title: "¿Tienes un proyecto en mente?", contact_desc: "Disponible para encargos y dirección de arte digital.",
+                form_name: "Tu Nombre", form_email: "Tu Correo Electrónico", form_msg: "Describe tu idea...",
+                form_submit: "Enviar Mensaje por Gmail", footer_rights: "Todos los derechos reservados."
             },
             en: {
-                nav_gallery: "Gallery", nav_contact: "Contact",
-                hero_title: "Creative Engineering & Digital Art",
-                hero_desc: "Exploring zero-gravity physics, interactive biometrics, and 3D environments.",
-                hero_cta: "View Collection", exp_title: "Interactive Laboratory",
-                game_start: "Start Challenge", bpm_title: "Biometric Sync",
-                bpm_desc: "Click rhythmically on the heart to measure your BPM and sync the environment.",
-                proj_title: "Voice-Assisted Gallery", tts_btn: "Listen",
-                zg_btn: "🌌 Start Zero Gravity", zg_btn_off: "❌ Stop Physics"
+                nav_gallery: "3D Gallery", nav_contact: "Contact", audio_btn: "Amb. Audio",
+                hero_tag: "Generative Art & Creative Code",
+                hero_title: "Exploring the boundary between light and geometry",
+                hero_desc: "Interactive portfolio featuring ambient audio, immersive experiences, and dynamic galleries.",
+                hero_cta: "View Full Gallery",
+                stat_1: "Digital Projects", stat_2: "Algorithmic Art", stat_3: "Current Collection",
+                exp_title: "Interactive Experiences", sculpture_title: "Three-Dimensional Sculpture",
+                sculpture_desc: "Click and drag to rotate. Reacts to audio.", snap_btn: "📸 Snapshot",
+                game_title: "Neon Reflex", game_desc: "Catch as many spheres as you can.",
+                game_score: "Score: ", game_time: "Time: ", game_start: "Start Challenge",
+                notes_title: "Visitor Wall", notes_desc: "Leave a quick greeting or note stored locally in your browser.",
+                note_placeholder: "Write your message...", author_placeholder: "Your name or handle", note_btn: "Leave Note",
+                proj_title: "Selected Collections", tag_sim: "3D Simulation", tag_bio: "Synthetic Biology", tag_scu: "Digital Sculpture", tag_vr: "Virtual Reality",
+                proj_1: "Simulation of luminous fluids and particle behavior.",
+                proj_2: "Conceptual study of algorithmically generated futuristic botany.",
+                proj_3: "Translucent geometric structures with dynamic lighting.",
+                proj_4: "Immersive environments designed for metaverse exhibitions.",
+                contact_title: "Have a project in mind?", contact_desc: "Available for commissions and digital art direction.",
+                form_name: "Your Name", form_email: "Your Email", form_msg: "Describe your idea...",
+                form_submit: "Send Message via Gmail", footer_rights: "All rights reserved."
             }
         };
-        let currentLang = 'es';
-        function toggleLanguage() {
-            currentLang = currentLang === 'es' ? 'en' : 'es';
-            document.getElementById('lang-label').textContent = currentLang === 'es' ? 'EN' : 'ES';
+
+        let currentLang = localStorage.getItem('aetheris-lang') || 'es';
+        function applyLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('aetheris-lang', lang);
+            document.documentElement.setAttribute('data-lang', lang);
+            document.getElementById('lang-label').textContent = lang === 'es' ? 'EN' : 'ES';
+
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[currentLang][key]) el.innerHTML = translations[currentLang][key]; // innerHTML para mantener iconos
+                if (translations[lang][key]) el.textContent = translations[lang][key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[lang][key]) el.placeholder = translations[lang][key];
             });
         }
+        function toggleLanguage() {
+            applyLanguage(currentLang === 'es' ? 'en' : 'es');
+        }
+        window.addEventListener('DOMContentLoaded', () => applyLanguage(currentLang));
 
-        /* CURSOR Y TEMAS */
-        const cursor = document.getElementById('cursor'), cursorDot = document.getElementById('cursor-dot');
+        /* CURSOR */
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursor-dot');
         window.addEventListener('mousemove', (e) => {
             cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
             cursorDot.style.left = e.clientX + 'px'; cursorDot.style.top = e.clientY + 'px';
         });
-        document.querySelectorAll('a, button, .heart-icon').forEach(el => {
-            el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%, -50%) scale(1.6)'; });
-            el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%, -50%) scale(1)'; });
+
+        document.querySelectorAll('a, button, .art-item, input, textarea, .theme-dot').forEach(el => {
+            el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%, -50%) scale(1.6)'; cursor.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; });
+            el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%, -50%) scale(1)'; cursor.style.backgroundColor = 'transparent'; });
         });
 
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
+        /* TEMAS */
+        function setTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('aetheris-theme', themeName);
+            updateAudioThemeFreq(themeName);
         }
+        const savedTheme = localStorage.getItem('aetheris-theme');
+        if (savedTheme) setTheme(savedTheme);
 
-        /* 1. SINTETIZADOR DE VOZ (TTS) */
-        function readCardAloud(btn) {
-            const card = btn.closest('.art-item');
-            const title = card.querySelector('h3').textContent;
-            const desc = card.querySelector('p').textContent;
-            
-            // Cancelar cualquier lectura anterior
-            window.speechSynthesis.cancel();
-            
-            const utterance = new SpeechSynthesisUtterance(`${title}. ${desc}`);
-            utterance.lang = currentLang === 'es' ? 'es-ES' : 'en-US';
-            utterance.pitch = 0.5; // Voz más grave y robótica
-            utterance.rate = 1.05;
-            
-            // Animación del botón mientras lee
-            btn.style.background = 'var(--cursor-color)';
-            btn.style.color = '#000';
-            utterance.onend = () => {
-                btn.style.background = '';
-                btn.style.color = '';
-            };
-            
-            window.speechSynthesis.speak(utterance);
-        }
+        /* AUDIO AMBIENTAL CON ANALIZADOR */
+        let audioCtx = null;
+        let isAudioPlaying = false;
+        let osc1 = null, osc2 = null;
+        let gainNode = null;
+        let filterNode = null;
+        let analyser = null;
+        let audioDataArray = null;
 
-        /* 2. SINCRONIZADOR CARDÍACO (BPM) */
-        let tapTimes = [];
-        let syncInterval = null;
-        let globalScaleFactor = 1;
+        function toggleAmbientAudio() {
+            const btn = document.getElementById('audio-toggle');
+            if (!isAudioPlaying) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
 
-        function tapHeartbeat() {
-            const now = Date.now();
-            tapTimes.push(now);
-            
-            // Mantener solo los últimos 4 taps para sacar la media
-            if (tapTimes.length > 4) tapTimes.shift();
+                    osc1 = audioCtx.createOscillator();
+                    osc2 = audioCtx.createOscillator();
+                    gainNode = audioCtx.createGain();
+                    filterNode = audioCtx.createBiquadFilter();
+                    analyser = audioCtx.createAnalyser();
 
-            if (tapTimes.length > 1) {
-                let timeDiffs = [];
-                for (let i = 1; i < tapTimes.length; i++) {
-                    timeDiffs.push(tapTimes[i] - tapTimes[i-1]);
+                    analyser.fftSize = 64;
+                    audioDataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    const baseFreq = getThemeFreq(currentTheme);
+
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+                    osc2.type = 'triangle';
+                    osc2.frequency.setValueAtTime(baseFreq * 1.5, audioCtx.currentTime);
+
+                    filterNode.type = 'lowpass';
+                    filterNode.frequency.setValueAtTime(450, audioCtx.currentTime);
+
+                    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 1.5);
+
+                    osc1.connect(filterNode);
+                    osc2.connect(filterNode);
+                    filterNode.connect(gainNode);
+                    gainNode.connect(analyser);
+                    analyser.connect(audioCtx.destination);
+
+                    osc1.start();
+                    osc2.start();
+
+                    isAudioPlaying = true;
+                    btn.innerHTML = "🔊 <span>Audio Activo</span>";
+                    btn.style.borderColor = "var(--cursor-color)";
+                } catch (e) {
+                    console.error("Error al iniciar audio:", e);
                 }
-                const avgDiff = timeDiffs.reduce((a, b) => a + b, 0) / timeDiffs.length;
-                
-                // Si tardó más de 2 segundos, reiniciar
-                if (avgDiff > 2500) { tapTimes = [now]; return; }
-                
-                const bpm = Math.round(60000 / avgDiff);
-                document.getElementById('bpm-val').textContent = bpm;
-                applyWorldPulse(avgDiff);
             } else {
-                document.getElementById('bpm-val').textContent = "...";
+                if (gainNode && audioCtx) {
+                    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+                    setTimeout(() => {
+                        if (osc1) osc1.stop();
+                        if (osc2) osc2.stop();
+                        if (audioCtx) audioCtx.close();
+                        isAudioPlaying = false;
+                        analyser = null;
+                    }, 500);
+                } else {
+                    isAudioPlaying = false;
+                }
+                btn.innerHTML = "🔇 <span>Audio Amb.</span>";
+                btn.style.borderColor = "var(--glass-border)";
             }
         }
 
-        function applyWorldPulse(intervalMs) {
-            if (syncInterval) clearInterval(syncInterval);
-            const flash = document.getElementById('heartbeat-flash');
-            
-            // Generar el latido constante basado en el ritmo del usuario
-            syncInterval = setInterval(() => {
-                // Flash del fondo
-                flash.style.opacity = '0.15';
-                setTimeout(() => flash.style.opacity = '0', 200);
-                
-                // Efecto en la escultura 3D
-                globalScaleFactor = 1.25;
-                setTimeout(() => globalScaleFactor = 1, 150);
-            }, intervalMs);
+        function getThemeFreq(theme) {
+            switch(theme) {
+                case 'cyberpunk': return 110;
+                case 'solar': return 146.83;
+                case 'emerald': return 130.81;
+                default: return 98.00;
+            }
         }
 
-        /* ESCULTURA 3D (Se integra con el latido) */
+        function updateAudioThemeFreq(theme) {
+            if (isAudioPlaying && osc1 && osc2 && audioCtx) {
+                const baseFreq = getThemeFreq(theme);
+                osc1.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+                osc2.frequency.setValueAtTime(baseFreq * 1.5, audioCtx.currentTime);
+            }
+        }
+
+        /* THREE.JS 3D CON SELECTOR DE FORMAS Y REACCIÓN DE AUDIO */
         const container3D = document.getElementById('canvas-3d');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(60, container3D.clientWidth / container3D.clientHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
         renderer.setSize(container3D.clientWidth, container3D.clientHeight);
         container3D.appendChild(renderer.domElement);
 
-        const geo = new THREE.IcosahedronGeometry(1.6, 1);
-        const mat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, wireframe: true });
-        const mesh = new THREE.Mesh(geo, mat);
-        scene.add(mesh);
-        
+        let currentMesh;
+        function changeShape(type, btn) {
+            document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            if (currentMesh) scene.remove(currentMesh);
+
+            let geo;
+            const mat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, wireframe: true, roughness: 0.2, metalness: 0.8 });
+
+            if (type === 'icosahedron') geo = new THREE.IcosahedronGeometry(1.6, 0);
+            else if (type === 'torus') geo = new THREE.TorusGeometry(1.2, 0.4, 16, 50);
+            else if (type === 'particles') geo = new THREE.SphereGeometry(1.5, 16, 16);
+            else if (type === 'cube') geo = new THREE.BoxGeometry(2, 2, 2);
+
+            currentMesh = new THREE.Mesh(geo, mat);
+            scene.add(currentMesh);
+        }
+        changeShape('icosahedron', null);
+
         const light = new THREE.PointLight(0xffffff, 2, 50);
         light.position.set(5, 5, 5);
         scene.add(light);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
         camera.position.z = 5;
 
-        function animate3D() {
-            requestAnimationFrame(animate3D);
-            mesh.rotation.y += 0.005;
-            mesh.rotation.x += 0.003;
-            // Aplicar el factor de escala modificado por el latido cardíaco
-            mesh.scale.lerp(new THREE.Vector3(globalScaleFactor, globalScaleFactor, globalScaleFactor), 0.1);
+        let isDragging = false, prevMouse = { x: 0, y: 0 };
+        container3D.addEventListener('mousedown', (e) => { isDragging = true; prevMouse = { x: e.clientX, y: e.clientY }; });
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging || !currentMesh) return;
+            currentMesh.rotation.y += (e.clientX - prevMouse.x) * 0.008;
+            currentMesh.rotation.x += (e.clientY - prevMouse.y) * 0.008;
+            prevMouse = { x: e.clientX, y: e.clientY };
+        });
+        window.addEventListener('mouseup', () => { isDragging = false; });
+
+        // Capturador de pantalla del canvas 3D
+        function takeSnapshot() {
+            const link = document.createElement('a');
+            link.download = 'aetheris-3d-snapshot.png';
+            link.href = renderer.domElement.toDataURL('image/png');
+            link.click();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            let audioFactor = 1;
+            if (isAudioPlaying && analyser && audioDataArray) {
+                analyser.getByteFrequencyData(audioDataArray);
+                let sum = audioDataArray.reduce((acc, val) => acc + val, 0);
+                let avg = sum / audioDataArray.length;
+                audioFactor = 1 + (avg / 250); // Escala según la intensidad del sonido
+            }
+
+            if (currentMesh) {
+                if (!isDragging) { currentMesh.rotation.y += 0.003; currentMesh.rotation.x += 0.002; }
+                currentMesh.scale.set(audioFactor, audioFactor, audioFactor);
+            }
             renderer.render(scene, camera);
         }
-        animate3D();
+        animate();
 
-        /* 3. MODO GRAVEDAD CERO CON MATTER.JS */
-        let engine, render, runner;
-        let isZeroGActive = false;
-
-        function toggleZeroGravity() {
-            const btn = document.getElementById('zg-btn');
-            if (isZeroGActive) {
-                // Detener y limpiar Matter.js
-                Matter.Render.stop(render);
-                Matter.Runner.stop(runner);
-                Matter.Engine.clear(engine);
-                if (render.canvas) render.canvas.remove();
-                engine = null;
-                isZeroGActive = false;
-                btn.innerHTML = translations[currentLang].zg_btn;
-                btn.style.borderColor = "";
-                return;
-            }
-
-            isZeroGActive = true;
-            btn.innerHTML = translations[currentLang].zg_btn_off;
-            btn.style.borderColor = "var(--cursor-color)";
-
-            // Inicializar el motor (Gravedad de "espacio exterior")
-            engine = Matter.Engine.create();
-            engine.world.gravity.y = 0.05; // Caen muy despacio
-
-            // Crear Canvas superpuesto e invisible al clic
-            render = Matter.Render.create({
-                element: document.body,
-                engine: engine,
-                options: {
-                    width: window.innerWidth, height: window.innerHeight,
-                    wireframes: false, background: 'transparent'
-                }
-            });
-            render.canvas.style.position = 'fixed';
-            render.canvas.style.top = '0';
-            render.canvas.style.left = '0';
-            render.canvas.style.pointerEvents = 'none'; // Clave: Deja hacer clic a la web real
-            render.canvas.style.zIndex = '9998';
-
-            // Paredes invisibles
-            const walls = [
-                Matter.Bodies.rectangle(window.innerWidth/2, -50, window.innerWidth, 100, { isStatic: true }),
-                Matter.Bodies.rectangle(window.innerWidth/2, window.innerHeight+50, window.innerWidth, 100, { isStatic: true }),
-                Matter.Bodies.rectangle(-50, window.innerHeight/2, 100, window.innerHeight, { isStatic: true }),
-                Matter.Bodies.rectangle(window.innerWidth+50, window.innerHeight/2, 100, window.innerHeight, { isStatic: true })
+        /* MURAL DE NOTAS LOCALES */
+        function loadNotes() {
+            const notes = JSON.parse(localStorage.getItem('aetheris-notes')) || [
+                { text: "¡Increíble portfolio y efectos de audio!", author: "Sofía M." },
+                { text: "Me encanta el diseño minimalista en cristal.", author: "Alex Dev" }
             ];
-            Matter.World.add(engine.world, walls);
-
-            // Generar esferas flotantes
-            const colors = ['#38bdf8', '#ff0055', '#f97316', '#34d399'];
-            for(let i = 0; i < 40; i++) {
-                const r = 10 + Math.random() * 20;
-                const x = Math.random() * window.innerWidth;
-                const y = -100 - (Math.random() * 500); // Aparecen por arriba
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                
-                const body = Matter.Bodies.circle(x, y, r, {
-                    restitution: 0.9, // Muy rebotonas
-                    frictionAir: 0.02,
-                    render: { fillStyle: color }
-                });
-                Matter.World.add(engine.world, body);
-            }
-
-            Matter.Render.run(render);
-            runner = Matter.Runner.create();
-            Matter.Runner.run(runner, engine);
+            const container = document.getElementById('notes-container');
+            container.innerHTML = '';
+            notes.forEach((note, index) => {
+                const rot = (index % 2 === 0 ? 2 : -2);
+                container.innerHTML += `
+                    <div class="sticky-note" style="--rot: ${rot}deg;">
+                        <p>"${note.text}"</p>
+                        <div class="note-author">— ${note.author}</div>
+                    </div>
+                `;
+            });
         }
+        function addNote(e) {
+            e.preventDefault();
+            const text = document.getElementById('note-text').value;
+            const author = document.getElementById('note-author').value;
+            let notes = JSON.parse(localStorage.getItem('aetheris-notes')) || [];
+            notes.unshift({ text, author });
+            localStorage.setItem('aetheris-notes', JSON.stringify(notes));
+            document.getElementById('note-text').value = '';
+            document.getElementById('note-author').value = '';
+            loadNotes();
+        }
+        window.addEventListener('DOMContentLoaded', loadNotes);
 
-        // Interacción Magnética/Repulsiva con el ratón para las esferas de Matter.js
-        window.addEventListener('mousemove', (e) => {
-            if(!engine || !isZeroGActive) return;
-            const mousePos = { x: e.clientX, y: e.clientY };
-            
-            engine.world.bodies.forEach(body => {
-                if (body.isStatic) return;
-                const dx = body.position.x - mousePos.x;
-                const dy = body.position.y - mousePos.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                
-                // Si el ratón pasa cerca (radio 150px), las repele fuertemente
-                if (dist < 150) {
-                    const force = 0.05 * (150 - dist) / 150; 
-                    Matter.Body.applyForce(body, body.position, {
-                        x: (dx / dist) * force,
-                        y: (dy / dist) * force
-                    });
-                }
+        /* FAVORITOS */
+        function toggleFavorite(id, btn) {
+            let favs = JSON.parse(localStorage.getItem('aetheris-favs')) || [];
+            if (favs.includes(id)) {
+                favs = favs.filter(item => item !== id);
+                btn.classList.remove('active');
+            } else {
+                favs.push(id);
+                btn.classList.add('active');
+            }
+            localStorage.setItem('aetheris-favs', JSON.stringify(favs));
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            const favs = JSON.parse(localStorage.getItem('aetheris-favs')) || [];
+            document.querySelectorAll('.art-item').forEach((item, idx) => {
+                const id = 'p' + (idx + 1);
+                const btn = item.querySelector('.fav-btn');
+                if (btn && favs.includes(id)) btn.classList.add('active');
             });
         });
 
-        /* MINIJUEGO BÁSICO (Mantenido) */
+        /* MINIJUEGO */
         const startBtn = document.getElementById('start-game-btn');
         const orb = document.getElementById('target-orb');
-        let gameScore = 0, gameTime = 10, gameInterval;
+        const gameArea = document.getElementById('game-area');
+        const gameScore = document.getElementById('game-score');
+        const gameTime = document.getElementById('game-time');
+        const gameMsg = document.getElementById('game-msg');
+        let score = 0, timeLeft = 10, timerId = null, isPlaying = false;
+
+        function moveOrb() {
+            orb.style.left = Math.floor(Math.random() * (gameArea.clientWidth - 45)) + 'px';
+            orb.style.top = Math.floor(Math.random() * (gameArea.clientHeight - 45)) + 'px';
+        }
+
         startBtn.addEventListener('click', () => {
-            gameScore = 0; gameTime = 10;
-            document.getElementById('game-score').textContent = gameScore;
-            document.getElementById('game-msg').style.display = 'none';
-            orb.style.display = 'block';
-            moveOrb();
-            clearInterval(gameInterval);
-            gameInterval = setInterval(() => {
-                gameTime--; document.getElementById('game-time').textContent = gameTime;
-                if (gameTime <= 0) {
-                    clearInterval(gameInterval); orb.style.display = 'none';
-                    document.getElementById('game-msg').style.display = 'block';
-                    document.getElementById('game-msg').innerHTML = `<p style="font-weight:700;">¡Puntos: ${gameScore}!</p><button class="cta-btn" onclick="startBtn.click()" style="padding:4px 12px; margin-top:8px;">Reintentar</button>`;
+            score = 0; timeLeft = 10; gameScore.textContent = score; gameTime.textContent = timeLeft;
+            gameMsg.style.display = 'none'; orb.style.display = 'block'; isPlaying = true; moveOrb();
+            clearInterval(timerId);
+            timerId = setInterval(() => {
+                timeLeft--; gameTime.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerId); isPlaying = false; orb.style.display = 'none';
+                    gameMsg.style.display = 'block';
+                    gameMsg.innerHTML = `<p style="margin-bottom: 8px; font-weight: 700;">¡Finalizado! Puntos: ${score}</p><button class="cta-btn" style="padding: 6px 16px; font-size: 0.8rem;" onclick="startBtn.click()">Reintentar</button>`;
                 }
             }, 1000);
         });
-        function moveOrb() {
-            const area = document.getElementById('game-area');
-            orb.style.left = Math.random() * (area.clientWidth - 40) + 'px';
-            orb.style.top = Math.random() * (area.clientHeight - 40) + 'px';
-        }
-        orb.addEventListener('click', () => { gameScore++; document.getElementById('game-score').textContent = gameScore; moveOrb(); });
+        orb.addEventListener('click', () => { if (!isPlaying) return; score++; gameScore.textContent = score; moveOrb(); });
     </script>
 </body>
 </html>
